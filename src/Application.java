@@ -111,32 +111,48 @@ public class Application {
 	public void addHotel() throws SQLException {
 		// TODO Auto-generated method stub
 		String name, address, city, state, email, phone;
-		int  managerid;
-		prompt("Enter manager id"); managerid = scan.nextInt();
+		//int  managerid=(Integer) null;		
+		//check if this manager id is already present in staff table		
+		
 		prompt("Enter name"); name = scan.next();
 		prompt("Enter address"); address = scan.next();
 		prompt("Enter city"); city = scan.next();
 		prompt("Enter state"); state = scan.next();
 		prompt("Enter email"); email = scan.next();
 		prompt("Enter phone"); phone = scan.next();
-		String sql = "INSERT into HOTEL(ManagerID,Name,Address,City,State,Email,Phone) values (?,?,?,?,?,?,?)";
+		String sql = "INSERT into HOTEL(Name,Address,City,State,Email,Phone) values (?,?,?,?,?,?)";
 		try {
 			PreparedStatement ps = this.connection.prepareStatement(sql);
-			ps.setInt(1, managerid);
-			ps.setString(2, name);
-			ps.setString(3, address);
-			ps.setString(4, city);
-			ps.setString(5, state);
-			ps.setString(6, email);
-			ps.setString(7, phone);
+			//ps.setInt(1, managerid);
+			ps.setString(1, name);
+			ps.setString(2, address);
+			ps.setString(3, city);
+			ps.setString(4, state);
+			ps.setString(5, email);
+			ps.setString(6, phone);
 			ps.executeQuery();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-		}	
-		
-		
+		}			
 
+	}
+
+
+	public Boolean isStaff(int managerid) throws SQLException {
+		// TODO Auto-generated method stub
+		String sql = "select * from Staff where staffID =?";
+		PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setInt(1, managerid);
+        //statement.setString(2, userPassword);
+        ResultSet resultSet = statement.executeQuery();
+        boolean valid = false;
+        while (resultSet.next()) {
+            valid = true;
+            //this.userId = resultSet.getString("userid");
+            break;
+        }
+        return valid;
 	}
 
 
