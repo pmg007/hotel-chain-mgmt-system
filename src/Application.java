@@ -114,9 +114,15 @@ public class Application {
 				break;
 			case 6:
 				updateRoom();
+			case 7:
+				deleteRoom();
 			case 8:
 				addStaff();
 				break;
+			case 9:
+				updateStaff();
+				break;
+				
 				
 			default:
 				this.prompt("f");
@@ -126,10 +132,192 @@ public class Application {
 		
 	}
 	
-	public void updateRoom() {
+	public void updateStaff() throws SQLException{
+//		// TODO Auto-generated method stub
+//		String name, address, phone, dept, password;
+//		//int  managerid=(Integer) null;		
+//		//check if this manager id is already present in staff table	
+//		int hotelid, age;
+//		boolean availability,isactive;
+		prompt("enter staff id");
+		int staffid = scan.nextInt();
+		prompt("please select the field to be updated");
+		prompt("1. name 2.age 3.address 4.phone 5.availability 6. dept 7. isactive 8. hotel id");
+		String sql = "select * from Hotel where StaffID=?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		
+		ps.setInt(1, staffid);
+		ResultSet rs = ps.executeQuery();
+		int agefetched = 0, hotelidfetched=0;
+		String namefetched="", addressfetched="", phonefetched="",deptfetched="";
+		Boolean availabilityfetched=false, isActivefetched=false;
+		while(rs.next()) {
+			hotelidfetched = rs.getInt(2);
+			namefetched = rs.getString(3);
+			agefetched = rs.getInt(4);
+			addressfetched = rs.getString(5);
+			phonefetched = rs.getString(6);
+			availabilityfetched = rs.getBoolean(7);	
+			deptfetched = rs.getString(8);
+			isActivefetched = rs.getBoolean(9);
+			break;
+		}
+		
+		int choice = this.scan.nextInt();
+		switch (choice) {
+		case 1:
+			prompt("enter hotelID:");		
+			int hotelid = scan.nextInt();
+			updateStaffHelper(staffid, hotelid, namefetched, agefetched, addressfetched, phonefetched,availabilityfetched, deptfetched, isActivefetched);
+			break;
+		case 2: 
+			prompt("enter name:");
+			String name = scan.next();
+			updateStaffHelper(staffid, hotelidfetched, name, agefetched, addressfetched, phonefetched,availabilityfetched, deptfetched, isActivefetched);
+			break;
+		case 3:
+			prompt("enter age");
+			int age = scan.nextInt();
+			updateStaffHelper(staffid, hotelidfetched, namefetched, age, addressfetched, phonefetched,availabilityfetched, deptfetched, isActivefetched);			
+			break;
+		case 4: 
+			prompt("enter address:");
+			String address = scan.next();
+			updateStaffHelper(staffid, hotelidfetched, namefetched, agefetched, address, phonefetched,availabilityfetched, deptfetched, isActivefetched);
+			break;
+		case 5: 
+			prompt("enter phone");
+			String phone = scan.next();
+			updateStaffHelper(staffid, hotelidfetched, namefetched, agefetched, addressfetched, phone,availabilityfetched, deptfetched, isActivefetched);
+			break;
+		case 6:
+			prompt("enter availability:");
+			Boolean availability = scan.nextBoolean();
+			updateStaffHelper(staffid, hotelidfetched, namefetched, agefetched, addressfetched, phonefetched,availability, deptfetched, isActivefetched);
+			break;
+		case 7:
+			prompt("enter dept:");
+			String dept = scan.next();
+			updateStaffHelper(staffid, hotelidfetched, namefetched, agefetched, addressfetched, phonefetched,availabilityfetched, dept, isActivefetched);
+			break;
+		case 8:
+			prompt("is active status:");
+			Boolean isActive = scan.nextBoolean();
+			updateStaffHelper(staffid, hotelidfetched, namefetched, agefetched, addressfetched, phonefetched,availabilityfetched, deptfetched, isActive);
+			break;
+			
+		default:
+			prompt("invalid option");
+			break;
+		}
+
+		
+		
+	}
+
+
+	public void updateStaffHelper (int staffid, int hotelid, String name, int age, String address, String phone, Boolean availability, String dept, Boolean isActive) throws SQLException{
 		// TODO Auto-generated method stub
+		String sql = "update STAFF SET hotelID=?, Name=?, Age=?, Address=?, Phone=?, Availability=?, Department=?,isActive=?  where staffID=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setInt(1, hotelid);
+		ps.setString(2, name);
+		ps.setInt(3,  age);
+		ps.setString(4, address);
+		ps.setString(5, phone);
+		ps.setBoolean(6, availability);
+		ps.setString(7, dept);
+		ps.setBoolean(8, isActive);
+		ps.executeQuery();		
+	}
+
+
+	public void deleteRoom() throws SQLException {
+		// TODO Auto-generated method stub
+		prompt("enter room number"); int roomNumber = this.scan.nextInt();
+		prompt("please enter the hotel id");
+		int hotelid = this.scan.nextInt();
+		String sql = "delete from HOTEL where HotelID=? and RoomNumber=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setInt(1, hotelid);
+		ps.setInt(2, roomNumber);
+		ps.executeQuery();	
+		
+	}
+
+
+	public void updateRoom() throws SQLException {
+		// TODO Auto-generated method stub
+		prompt("enter hotel id");
+		int hotelid = scan.nextInt();
+		prompt("enter room number");
+		int roomNumber = scan.nextInt();
+		prompt("please select the field to be updated");
+		prompt("1. max Occupancy 2.rate 3.availability 4.service desc 5.category");
+		String sql = "select * from Hotel where HotelID=? and RoomNumber=?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		ps.setInt(1, hotelid);
+		ps.setInt(2, roomNumber);
+		ResultSet rs = ps.executeQuery();
+		int maxOccupancyfetched = 0, ratefetched=0;
+		String serviceDescfetched="", categoryfetched="";
+		Boolean availabilityfetched=false;
+		while(rs.next()) {
+			serviceDescfetched = rs.getString(3);
+			maxOccupancyfetched = rs.getInt(4);
+			categoryfetched = rs.getString(5);
+			availabilityfetched = rs.getBoolean(6);
+			ratefetched = rs.getInt(7);			
+			break;
+		}
+		
+		int choice = this.scan.nextInt();
+		switch (choice) {
+		case 1:
+			prompt("enter service desc:");		
+			String serviceDesc = scan.nextLine();
+			updateRoomHelper(roomNumber, hotelid, serviceDesc, maxOccupancyfetched, categoryfetched, availabilityfetched, ratefetched);
+			break;
+		case 2: 
+			prompt("enter max occupancy");
+			int maxOccupancy = scan.nextInt();
+			updateRoomHelper(roomNumber, hotelid, serviceDescfetched, maxOccupancy, categoryfetched, availabilityfetched, ratefetched);
+			break;
+		case 3:
+			prompt("enter category");
+			String category = scan.next();
+			updateRoomHelper(roomNumber, hotelid, serviceDescfetched, maxOccupancyfetched, category, availabilityfetched, ratefetched);			
+			break;
+		case 4: 
+			prompt("enter availability");
+			Boolean availability = scan.nextBoolean();
+			updateRoomHelper(roomNumber, hotelid, serviceDescfetched, maxOccupancyfetched, categoryfetched, availability, ratefetched);
+			break;
+		case 5: 
+			prompt("enter rate");
+			int rate = scan.nextInt();
+			updateRoomHelper(roomNumber, hotelid, serviceDescfetched, maxOccupancyfetched, categoryfetched, availabilityfetched, rate);
+			break;
+		default:
+			prompt("invalid option");
+			break;
+		}
+
 		
 		
+	}
+	
+	public void updateRoomHelper(int roomNumber, int hotelid, String serviceDesc, int maxOccupancy, String category, Boolean availability, int rate) throws SQLException{		
+		String sql = "update ROOM SET ServiceDesc=?, MaxOccupancy=?, Category=?, Availability=?, Rate=? where HotelID=? and RoomNumber=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setString(1, serviceDesc);
+		ps.setInt(2, maxOccupancy);
+		ps.setString(3,  category);
+		ps.setBoolean(4, availability);
+		ps.setInt(5, rate);
+		ps.setInt(6, hotelid);
+		ps.setInt(7, roomNumber);			
+		ps.executeQuery();
 	}
 
 
@@ -230,37 +418,37 @@ public class Application {
 		case 1:
 			prompt("enter manager id:");		
 			int managerid = scan.nextInt();
-			UpdateHotelHelper(hotelid, managerid, namefetched, addressfetched, cityfetched, statefetched, emailfetched, phonefetched);
+			updateHotelHelper(hotelid, managerid, namefetched, addressfetched, cityfetched, statefetched, emailfetched, phonefetched);
 			break;
 		case 2: 
 			prompt("enter name");
 			String name = scan.next();
-			UpdateHotelHelper(hotelid, manageridfetched, name, addressfetched, cityfetched, statefetched, emailfetched, phonefetched);
+			updateHotelHelper(hotelid, manageridfetched, name, addressfetched, cityfetched, statefetched, emailfetched, phonefetched);
 			break;
 		case 3:
 			prompt("enter address");
 			String address = scan.next();
-			UpdateHotelHelper(hotelid, manageridfetched, namefetched, address, cityfetched, statefetched, emailfetched, phonefetched);			
+			updateHotelHelper(hotelid, manageridfetched, namefetched, address, cityfetched, statefetched, emailfetched, phonefetched);			
 			break;
 		case 4: 
 			prompt("enter city");
 			String city = scan.next();
-			UpdateHotelHelper(hotelid, manageridfetched, namefetched, addressfetched, city, statefetched, emailfetched, phonefetched);
+			updateHotelHelper(hotelid, manageridfetched, namefetched, addressfetched, city, statefetched, emailfetched, phonefetched);
 			break;
 		case 5: 
 			prompt("enter state");
 			String state = scan.next();
-			UpdateHotelHelper(hotelid, manageridfetched, namefetched, addressfetched, cityfetched, state, emailfetched, phonefetched);
+			updateHotelHelper(hotelid, manageridfetched, namefetched, addressfetched, cityfetched, state, emailfetched, phonefetched);
 			break;
 		case 6: 
 			prompt("enter email");
 			String email = scan.next();
-			UpdateHotelHelper(hotelid, manageridfetched, namefetched, addressfetched, cityfetched, statefetched, email, phonefetched);
+			updateHotelHelper(hotelid, manageridfetched, namefetched, addressfetched, cityfetched, statefetched, email, phonefetched);
 			break;
 		case 7: 
 			prompt("enter phone");
 			String phone = scan.next();
-			UpdateHotelHelper(hotelid, manageridfetched, namefetched, addressfetched, cityfetched, statefetched, emailfetched, phone);
+			updateHotelHelper(hotelid, manageridfetched, namefetched, addressfetched, cityfetched, statefetched, emailfetched, phone);
 			break;
 		default:
 			prompt("invalid option");
@@ -420,7 +608,7 @@ public class Application {
 	
 
 
-	public void UpdateHotelHelper(int hotelid,int managerid, String name, String address, String city, String state, String email, String phone) throws SQLException {
+	public void updateHotelHelper(int hotelid,int managerid, String name, String address, String city, String state, String email, String phone) throws SQLException {
 		String sql = "update HOTEL SET ManagerID=?, Name=?, Address=?, City=?, State=?, Email=?, Phone=? where HotelID=?";
 		PreparedStatement ps = this.connection.prepareStatement(sql);
 		ps.setInt(1, managerid);
