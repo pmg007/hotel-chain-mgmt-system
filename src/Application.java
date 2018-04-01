@@ -126,8 +126,15 @@ public class Application {
 			case 10:
 				deleteStaff();
 				break;
-			//case 14:
-				
+			case 14:
+				addService();
+				break;
+			case 15:
+				updateService();
+				break;
+			case 16:
+				deleteService();
+				break;
 				
 			default:
 				this.prompt("f");
@@ -137,6 +144,103 @@ public class Application {
 		
 	}
 	
+	public void deleteService() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("enter service id"); int serviceid = this.scan.nextInt();
+		prompt("please enter the hotel id");
+		int hotelid = this.scan.nextInt();
+		String sql = "delete from SERVICE where HotelID=? and ServiceID=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setInt(1, hotelid);
+		ps.setInt(2, serviceid);
+		ps.executeQuery();
+		
+	}
+
+
+	public void updateService() throws SQLException {
+		// TODO Auto-generated method stub
+//		int serviceid, cost, hotelid;
+//		String serviceName="";	
+		prompt("enter service id");
+		int serviceid = scan.nextInt();
+		prompt("enter hotel id");
+		int hotelid = scan.nextInt();
+		prompt("please select the field to be updated");
+		prompt("1. cost 2.service name");
+		String sql = "select * from SERVICE where HotelID=? and ServiceID=?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		
+		ps.setInt(1, hotelid);
+		ps.setInt(2, serviceid);
+		ResultSet rs = ps.executeQuery();
+		int costfetched=0;
+		String serviceNamefetched="";
+		while(rs.next()) {
+			costfetched = rs.getInt(2);
+			serviceNamefetched = rs.getString(3);
+			break;
+		}		
+		int choice = this.scan.nextInt();
+		switch (choice) {
+		case 1:
+			prompt("enter cost:");		
+			int cost = scan.nextInt();
+			updateServiceHelper(serviceid, cost, serviceNamefetched, hotelid);
+			break;
+		case 2: 
+			prompt("enter service name:");
+			String serviceName = scan.next();
+			updateServiceHelper(serviceid, costfetched, serviceName, hotelid);
+			break;
+			
+		default:
+			prompt("invalid option");
+			break;
+		}
+
+		
+	}
+
+
+	public void updateServiceHelper(int serviceid, int cost, String serviceName, int hotelid) throws SQLException{
+		// TODO Auto-generated method stub
+		String sql = "update SERVICE set ServiceID=?, Cost=?, ServiceName=?, HotelID=? where serviceID=? and hotelID=? ";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setInt(1, serviceid);
+		ps.setInt(2, cost);
+		ps.setString(3,  serviceName);
+		ps.setInt(4, hotelid);	
+		ps.setInt(5, serviceid);
+		ps.setInt(6, hotelid);
+		ps.executeQuery();		
+	}
+
+
+	public void addService() throws SQLException {
+		// TODO Auto-generated method stub
+		int serviceid, cost, hotelid;
+		String serviceName="";		
+		prompt("Enter service id ( lim 3 digit)"); serviceid = scan.nextInt();
+		prompt("Enter cost(lim 4 digit)"); cost = scan.nextInt();
+		prompt("Enter hotelid"); hotelid = scan.nextInt();
+		prompt("Enter service name"); serviceName = scan.nextLine();
+		String sql = "INSERT into SERVICE values (?,?,?,?)";
+		try {
+			PreparedStatement ps = this.connection.prepareStatement(sql);			
+			ps.setInt(1, serviceid);
+			ps.setInt(2, cost);
+			ps.setString(3, serviceName);
+			ps.setInt(4, hotelid);		
+			ps.executeQuery();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}			
+
+	}
+
+
 	@SuppressWarnings("null")
 	public void deleteStaff() throws SQLException {
 		// TODO Auto-generated method stub
