@@ -3,6 +3,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Scanner;
 
 
@@ -122,6 +123,10 @@ public class Application {
 			case 9:
 				updateStaff();
 				break;
+			case 10:
+				deleteStaff();
+				break;
+			//case 14:
 				
 				
 			default:
@@ -132,6 +137,33 @@ public class Application {
 		
 	}
 	
+	@SuppressWarnings("null")
+	public void deleteStaff() throws SQLException {
+		// TODO Auto-generated method stub
+		//prompt("enter room number"); int roomNumber = this.scan.nextInt();
+		prompt("please enter the staff id");
+		int staffid = this.scan.nextInt();
+		String sql = "delete from STAFF where StaffID=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setInt(1, staffid);		
+		ps.executeQuery();	
+		String sql2 = "select * from HOTEL where ManagerID =?";
+		PreparedStatement ps2 =connection.prepareStatement(sql2);
+		ps2.setInt(1, staffid);
+		ResultSet rs = ps2.executeQuery();
+		if(rs.next()){
+			System.out.println("hello");
+			int hotelidfetched = rs.getInt(1);
+			String sql1 = "update HOTEL set ManagerID =? where HotelID=?";
+			PreparedStatement ps1 = connection.prepareStatement(sql1);
+			ps1.setNull(1, Types.INTEGER);
+			ps1.setInt(2, hotelidfetched);
+			ps1.executeQuery();			
+		}
+			
+	}
+
+
 	public void updateStaff() throws SQLException{
 //		// TODO Auto-generated method stub
 //		String name, address, phone, dept, password;
@@ -241,7 +273,8 @@ public class Application {
 		PreparedStatement ps = this.connection.prepareStatement(sql);
 		ps.setInt(1, hotelid);
 		ps.setInt(2, roomNumber);
-		ps.executeQuery();	
+		ps.executeQuery();
+		
 		
 	}
 
@@ -407,9 +440,10 @@ public class Application {
 			manageridfetched = rs.getInt(2);
 			namefetched = rs.getString(3);
 			addressfetched = rs.getString(4);
-			statefetched = rs.getString(5);
-			emailfetched = rs.getString(6);
-			phonefetched  =rs.getString(7);
+			cityfetched = rs.getString(5);
+			statefetched = rs.getString(6);
+			emailfetched = rs.getString(7);
+			phonefetched  =rs.getString(8);
 			break;
 		}
 		
