@@ -136,6 +136,19 @@ public class Application {
 				deleteService();
 				break;
 				
+			case 19:
+				addCustomer();
+				break;
+			case 20:
+				getCustomerInfoByEmail();
+				break;
+			case 21:
+				updateCustomer();
+				break;
+			case 22:
+				deleteCustomer();
+				break;
+				
 			default:
 				this.prompt("f");
 				
@@ -144,6 +157,136 @@ public class Application {
 		
 	}
 	
+	public void updateCustomer() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("enter customer email id");
+		String customerEmail = scan.next();
+		prompt("please select the field to be updated");
+		prompt("1. name 2.email 3. DOB 4.Phone");
+		String sql = "select * from CUSTOMER where Email=?";
+		PreparedStatement ps = connection.prepareStatement(sql);
+		
+		ps.setString(1, customerEmail);
+		ResultSet rs = ps.executeQuery();
+		String customerNamefetched="", customerEmailfetched="", customerDOBfetched="", customerPhonefetched="" ;
+		while(rs.next()) {
+			customerNamefetched = rs.getString(1);
+			customerEmailfetched = rs.getString(2);
+			customerDOBfetched = rs.getString(3);
+			customerPhonefetched = rs.getString(4);
+			break;
+		}		
+		int choice = this.scan.nextInt();
+		switch (choice) {
+		case 1:
+			prompt("enter name:");		
+			String customerName = scan.nextLine();
+			updateCustomerHelper(customerName, customerEmailfetched, customerDOBfetched, customerPhonefetched);
+			break;
+		case 2: 
+			prompt("enter email");
+			String email = scan.next();
+			updateCustomerHelper(customerNamefetched, email, customerDOBfetched, customerPhonefetched);
+			break;
+		case 3:
+			prompt("enter date(YYYY-MM-DD):");
+			String customerDOB=scan.next();
+			updateCustomerHelper(customerNamefetched, customerEmailfetched, customerDOB, customerPhonefetched);
+			break;
+		case 4:
+			prompt("enter phone:");
+			String customerPhone=scan.next();
+			updateCustomerHelper(customerNamefetched, customerEmailfetched, customerDOBfetched, customerPhone);
+			break;
+		default:
+			prompt("invalid option");
+			break;
+		}
+
+		
+	}
+
+
+	public void updateCustomerHelper(String customerName, String customerEmail, String customerDOB,
+			String customerPhone) throws SQLException{
+		// TODO Auto-generated method stub
+		String sql = "update CUSTOMER set Name=?, Email=?, DOB=?, Phone=? where Email=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setString(1, customerName);
+		ps.setString(2, customerEmail);
+		ps.setString(3,  customerDOB);
+		ps.setString(4, customerPhone);	
+		ps.setString(5, customerEmail);
+		ps.executeQuery();		
+		String sql2 = "select * from HOTEL where ManagerID =?";
+		PreparedStatement ps2 =connection.prepareStatement(sql2);
+		ps2.setInt(1, staffid);
+		ResultSet rs = ps2.executeQuery();
+		if(rs.next()){
+			System.out.println("hello");
+			int hotelidfetched = rs.getInt(1);
+			String sql1 = "update HOTEL set ManagerID =? where HotelID=?";
+			PreparedStatement ps1 = connection.prepareStatement(sql1);
+			ps1.setNull(1, Types.INTEGER);
+			ps1.setInt(2, hotelidfetched);
+			ps1.executeQuery();			
+		}
+	}
+
+
+	public void getCustomerInfoByEmail() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("please enter the csutomer email id");
+		String customerEmail = this.scan.next();
+		String sql = "select * from CUSTOMER where Email=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setString(1, customerEmail);		
+		ResultSet rs= ps.executeQuery();
+		while(rs.next()) {
+			prompt("name="+rs.getString(1)+" email="+rs.getString(2)+" DOB="+rs.getString(3)
+					+ " phone="+rs.getString(4));
+		}
+		
+	}
+
+
+	public void deleteCustomer() throws SQLException {
+		// TODO Auto-generated method stub
+		prompt("please enter the customer email id");
+		String customerEmail = this.scan.next();
+		String sql = "delete from CUSTOMER where Email=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setString(1, customerEmail);
+		ps.executeQuery();		
+	}
+
+
+	public void addCustomer() throws SQLException{
+		// TODO Auto-generated method stub
+		
+		
+		String customerName, customerEmail, customerDOB, customerPhone;		
+		prompt("Enter customer name:"); customerName = scan.next();
+		prompt("Enter customer email:"); customerEmail = scan.next();
+		prompt("Enter customer dob(YYYY-MM-DD):"); customerDOB = scan.next();
+		prompt("Enter customer phone:"); customerPhone = scan.next();
+		String sql = "INSERT into CUSTOMER values (?,?,?,?)";
+		try {
+			PreparedStatement ps = this.connection.prepareStatement(sql);			
+			ps.setString(1, customerName);
+			ps.setString(2, customerEmail);
+			ps.setString(3, customerDOB);
+			ps.setString(4, customerPhone);		
+			ps.executeQuery();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}			
+
+		
+	}
+
+
 	public void deleteService() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("enter service id"); int serviceid = this.scan.nextInt();
@@ -153,8 +296,7 @@ public class Application {
 		PreparedStatement ps = this.connection.prepareStatement(sql);
 		ps.setInt(1, hotelid);
 		ps.setInt(2, serviceid);
-		ps.executeQuery();
-		
+		ps.executeQuery();		
 	}
 
 
