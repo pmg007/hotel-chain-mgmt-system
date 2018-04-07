@@ -133,6 +133,8 @@ public class Application {
 			case 12:
 				getStaffByDept();
 				break;
+//			case 13:
+//				getStaff();
 				
 			case 14:
 				addService();
@@ -143,6 +145,7 @@ public class Application {
 			case 16:
 				deleteService();
 				break;
+			case 17:
 				
 			case 19:
 				addCustomer();
@@ -167,7 +170,7 @@ public class Application {
 	
 	public void getStaffByDept() throws SQLException{
 		// TODO Auto-generated method stub
-		prompt("1. get staff by dept for wolfinn 2.get staff by dept for a particular hotel");
+		prompt("1. get staff by dept for wolfinn 2.get staff by dept for a particular hotel 3. get staff grouped by dept");
 		int choice=this.scan.nextInt();
 		String dept;
 		switch (choice) {
@@ -196,7 +199,17 @@ public class Application {
 				prompt(rs2.getString(1));
 			}
 			break;
-
+		case 3:
+//			prompt("enter the dept");
+//			dept = this.scan.next();
+			String sql3 = "select Name, Department, HotelID from STAFF order by Department";
+			PreparedStatement ps3 = connection.prepareStatement(sql3);
+			//ps3.setString(1, dept);
+			ResultSet rs3 = ps3.executeQuery();
+			while(rs3.next()) {
+				prompt("name:"+rs3.getString(1)+" dept:"+rs3.getString(2)+" hotel id:"+rs3.getInt(3));
+			}
+			break;
 		default:
 			prompt("invalid choice..please try again!");
 			break;
