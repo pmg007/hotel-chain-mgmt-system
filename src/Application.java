@@ -218,17 +218,18 @@ public class Application {
 		ps.setString(4, customerPhone);	
 		ps.setString(5, customerEmail);
 		ps.executeQuery();		
-		String sql2 = "select * from HOTEL where ManagerID =?";
+		String sql2 = "select * from CUSTOMER where Email =? or Phone=?";
 		PreparedStatement ps2 =connection.prepareStatement(sql2);
-		ps2.setInt(1, staffid);
+		ps2.setString(1, customerEmail);
+		ps2.setString(2,customerPhone);
 		ResultSet rs = ps2.executeQuery();
 		if(rs.next()){
-			System.out.println("hello");
-			int hotelidfetched = rs.getInt(1);
-			String sql1 = "update HOTEL set ManagerID =? where HotelID=?";
+			//System.out.println("hello");
+			String phonefetched = rs.getString(4);
+			String sql1 = "update CUSTOMER set Email =? where Phone=?";
 			PreparedStatement ps1 = connection.prepareStatement(sql1);
-			ps1.setNull(1, Types.INTEGER);
-			ps1.setInt(2, hotelidfetched);
+			ps1.setString(1, customerEmail );
+			ps1.setString(2, phonefetched);
 			ps1.executeQuery();			
 		}
 	}
