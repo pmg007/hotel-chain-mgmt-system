@@ -146,7 +146,7 @@ public class Application {
 				deleteService();
 				break;
 			case 17:
-				
+				checkRoomAvailability();
 			case 19:
 				addCustomer();
 				break;
@@ -159,6 +159,9 @@ public class Application {
 			case 22:
 				deleteCustomer();
 				break;
+			case 28:
+				updateManager();
+				break;
 				
 			default:
 				this.prompt("f");
@@ -168,6 +171,63 @@ public class Application {
 		
 	}
 	
+	public void updateManager() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("enter the hotel id");
+		int hotelid = this.scan.nextInt();
+		prompt("1. add new employee as manager 2. promote existing employee to manager");
+		int choice = this.scan.nextInt();
+		switch (choice) {
+		case 1:
+			addStaff();
+			int staffid=0;
+			String sql1 = "select max(StaffID) from STAFF";
+			PreparedStatement ps1 = connection.prepareStatement(sql1);
+			ResultSet rs1 = ps1.executeQuery();
+			if(rs1.next()){
+				staffid = rs1.getInt(1);
+			}
+			String sql2 = "select * from HOTEL where HotelID=?";
+			PreparedStatement ps2 = this.connection.prepareStatement(sql2);
+			ps2.setInt(1, hotelid);		
+			ResultSet rs2= ps2.executeQuery();
+			prompt("2");
+			if(rs2.next()){
+				updateHotelHelper(hotelid, staffid, rs2.getString("Name"),rs2.getString("Address") , rs2.getString("City"), rs2.getString("State"),rs2.getString("Email"), rs2.getString("Phone"));
+			}
+			
+			break;
+		case 2:
+			updateStaff();
+			prompt("enter the staff id(manager id) of the staff to be promoted to manager");
+			int managerid = this.scan.nextInt();
+			String sql3 = "update HOTEL set ManagerID =? where HotelID=?";
+			PreparedStatement ps3 = connection.prepareStatement(sql3);
+			ps3.setInt(1, managerid);
+			ps3.setInt(2, hotelid);	
+			ps3.executeQuery();
+			break;
+
+		default:
+			break;
+		}
+		
+	}
+
+
+	public void checkRoomAvailability() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("enter hotel id");
+		int hotelid = this.scan.nextInt();
+		prompt("enter start date and end date (YYYY-MM-DD)");
+		String requestedStartDate=this.scan.next(), requestedEndDate=this.scan.next();
+		String sql = "";
+		
+		
+		
+	}
+
+
 	public void getStaffByDept() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("1. get staff by dept for wolfinn 2.get staff by dept for a particular hotel 3. get staff grouped by dept");
@@ -505,8 +565,8 @@ public class Application {
 		prompt("enter staff id");
 		int staffid = scan.nextInt();
 		prompt("please select the field to be updated");
-		prompt("1. name 2.age 3.address 4.phone 5.availability 6. dept 7. isactive 8. hotel id");
-		String sql = "select * from Hotel where StaffID=?";
+		prompt("1.HotelID 2. name 3.age 4.address 5.phone 6.availability 7. dept 8. isactive");
+		String sql = "select * from STAFF where StaffID=?";
 		PreparedStatement ps = connection.prepareStatement(sql);
 		
 		ps.setInt(1, staffid);
@@ -591,6 +651,7 @@ public class Application {
 		ps.setBoolean(6, availability);
 		ps.setString(7, dept);
 		ps.setBoolean(8, isActive);
+		ps.setInt(9, staffid);
 		ps.executeQuery();		
 	}
 
@@ -671,18 +732,7 @@ public class Application {
 		
 	}
 	
-	public void updateRoomHelper(int roomNumber, int hotelid, String serviceDesc, int maxOccupancy, String category, Boolean availability, int rate) throws SQLException{		
-		String sql = "update ROOM SET ServiceDesc=?, MaxOccupancy=?, Category=?, Availability=?, Rate=? where HotelID=? and RoomNumber=?";
-		PreparedStatement ps = this.connection.prepareStatement(sql);
-		ps.setString(1, serviceDesc);
-		ps.setInt(2, maxOccupancy);
-		ps.setString(3,  category);
-		ps.setBoolean(4, availability);
-		ps.setInt(5, rate);
-		ps.setInt(6, hotelid);
-		ps.setInt(7, roomNumber);			
-		ps.executeQuery();
-	}
+	
 
 
 	public void addRoom() throws SQLException{
@@ -841,7 +891,7 @@ public class Application {
 		prompt("Enter dept"); dept = scan.next();
 		prompt("Enter isactive"); isactive = scan.nextBoolean();
 		prompt("Enter password"); password = scan.next();
-		String sql = "INSERT into HOTEL(Name,Address,City,State,Email,Phone) values (?,?,?,?,?,?)";
+		String sql = "INSERT into STAFF(HotelID,Name,Age,Address,Phone,Availability,Department,IsActive,Password) values (?,?,?,?,?,?,?,?,?)";
 		try {
 			PreparedStatement ps = this.connection.prepareStatement(sql);
 			
@@ -916,22 +966,7 @@ public class Application {
 	}
 
 
-	public int viewAdminOptions() {
-		// TODO Auto-generated method stub
-		prompt("1.Create Hotel 2.Get hotel info 3. update hotel 4.delete hotel");
-		prompt("5.Create room  6. update room 7.delete room");
-		prompt("8.Create staff 9.update staff 10.delete staff 11. get staff who served 12. get staff by dept 13. get staff");
-		prompt("14.Create service 15.update service info 16.delete service");
-		prompt("17.Check room availability 18.checkout room 3.");
-		prompt("19.Create customer 20. get customer info 21.update customer 22.delete customer");
-		prompt("23.Create booking  24. update booking 25.delete booking");
-		prompt("26.generate bill 27. get revenue");
-		prompt("28.update manager");
-		prompt("29.assign staff to presidential");
-		prompt("30.Create service request 31. update service request 32. delete service request");
-		int option = scan.nextInt();		
-		return option;
-	}
+	
 
 
 	public int getDepartment(String userName, String userPassword, int choice) throws SQLException {
@@ -986,6 +1021,38 @@ public class Application {
 		ps.setInt(8, hotelid);
 		ps.executeQuery();
 	 }
+
+
+	public int viewAdminOptions() {
+		// TODO Auto-generated method stub
+		prompt("1.Create Hotel 2.Get hotel info 3. update hotel 4.delete hotel");
+		prompt("5.Create room  6. update room 7.delete room");
+		prompt("8.Create staff 9.update staff 10.delete staff 11. get staff who served 12. get staff by dept 13. get staff");
+		prompt("14.Create service 15.update service info 16.delete service");
+		prompt("17.Check room availability 18.checkout room 3.");
+		prompt("19.Create customer 20. get customer info 21.update customer 22.delete customer");
+		prompt("23.Create booking  24. update booking 25.delete booking");
+		prompt("26.generate bill 27. get revenue");
+		prompt("28.update manager");
+		prompt("29.assign staff to presidential");
+		prompt("30.Create service request 31. update service request 32. delete service request");
+		int option = scan.nextInt();	
+		return option;
+	}
+
+
+	public void updateRoomHelper(int roomNumber, int hotelid, String serviceDesc, int maxOccupancy, String category, Boolean availability, int rate) throws SQLException{		
+		String sql = "update ROOM SET ServiceDesc=?, MaxOccupancy=?, Category=?, Availability=?, Rate=? where HotelID=? and RoomNumber=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setString(1, serviceDesc);
+		ps.setInt(2, maxOccupancy);
+		ps.setString(3,  category);
+		ps.setBoolean(4, availability);
+		ps.setInt(5, rate);
+		ps.setInt(6, hotelid);
+		ps.setInt(7, roomNumber);			
+		ps.executeQuery();
+	}
 
 
 	public static void main(String[] args) {
