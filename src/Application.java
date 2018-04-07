@@ -126,6 +126,10 @@ public class Application {
 			case 10:
 				deleteStaff();
 				break;
+			case 11:
+				getStaffWhoServed();
+				break;
+				
 			case 14:
 				addService();
 				break;
@@ -157,6 +161,30 @@ public class Application {
 		
 	}
 	
+	public void getStaffWhoServed() throws SQLException {
+		// TODO Auto-generated method stub
+		prompt("Enter customer emailid");
+		String customerEmail = this.scan.next();
+		String sql1 = "select BookingID, RoomNumber, StartDate, EndDate  from BOOKING where CustomerEmail=?"; 
+		PreparedStatement ps1 = connection.prepareStatement(sql1);
+		ps1.setString(1, customerEmail);
+		ResultSet rs1 = ps1.executeQuery();
+		while(rs1.next()) {
+			prompt("Booking id:"+rs1.getInt(1)+" RoomNumber:"+rs1.getInt(2)+" StartDate:"+rs1.getString(3)+ " End Date:"+rs1.getString(4));
+		}
+		prompt("enter the booking id for getting the staff who served the customer for that bookingid:");
+		int bookingid = this.scan.nextInt();
+		String sql2 = "select Name from STAFF where StaffID in (select sr.ServiceStaffID from SERVICE_REQUESTED sr Inner Join SERVICE_BOOKING sb on sr.ServiceNumber=sb.ServiceNumber Inner Join BOOKING b on sb.BookingID=b.BookingID where b.BookingID=? Union select ReceptingStaffID from SERVICE_REQUESTED sr Inner Join SERVICE_BOOKING sb on sr.ServiceNumber=sb.ServiceNumber Inner Join BOOKING b on sb.BookingID=b.BookingID where b.BookingID=?)  ";
+		PreparedStatement ps2 = connection.prepareStatement(sql2);
+		ps2.setInt(1, bookingid);
+		ps2.setInt(2, bookingid);
+		ResultSet rs2 = ps2.executeQuery();
+		while(rs2.next()) {
+			prompt(rs2.getString(1));
+		}		
+	}
+
+
 	public void updateCustomer() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("enter customer email id");
