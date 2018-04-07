@@ -130,6 +130,10 @@ public class Application {
 				getStaffWhoServed();
 				break;
 				
+			case 12:
+				getStaffByDept();
+				break;
+				
 			case 14:
 				addService();
 				break;
@@ -161,6 +165,45 @@ public class Application {
 		
 	}
 	
+	public void getStaffByDept() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("1. get staff by dept for wolfinn 2.get staff by dept for a particular hotel");
+		int choice=this.scan.nextInt();
+		String dept;
+		switch (choice) {
+		case 1:
+			prompt("enter the dept");
+			dept = this.scan.next();
+			String sql1 = "select Name from STAFF where Department =?";
+			PreparedStatement ps1 = connection.prepareStatement(sql1);
+			ps1.setString(1, dept);
+			ResultSet rs1 = ps1.executeQuery();
+			while(rs1.next()) {
+				prompt(rs1.getString(1));
+			}
+			break;
+		case 2:
+			prompt("enter the dept");
+			dept = this.scan.next();
+			prompt("enter hotel id:");
+			int hotelid = this.scan.nextInt();
+			String sql2 = "select Name from STAFF where Department =? and HotelID=?";
+			PreparedStatement ps2 = connection.prepareStatement(sql2);
+			ps2.setString(1, dept);
+			ps2.setInt(2, hotelid);
+			ResultSet rs2 = ps2.executeQuery();
+			while(rs2.next()) {
+				prompt(rs2.getString(1));
+			}
+			break;
+
+		default:
+			prompt("invalid choice..please try again!");
+			break;
+		}		
+	}
+
+
 	public void getStaffWhoServed() throws SQLException {
 		// TODO Auto-generated method stub
 		prompt("Enter customer emailid");
@@ -864,7 +907,7 @@ public class Application {
 		// TODO Auto-generated method stub
 		prompt("1.Create Hotel 2.Get hotel info 3. update hotel 4.delete hotel");
 		prompt("5.Create room  6. update room 7.delete room");
-		prompt("8.Create staff 9.update staff 10.delete staff 11. get staff who served 12. get staff by role 13. get staff");
+		prompt("8.Create staff 9.update staff 10.delete staff 11. get staff who served 12. get staff by dept 13. get staff");
 		prompt("14.Create service 15.update service info 16.delete service");
 		prompt("17.Check room availability 18.checkout room 3.");
 		prompt("19.Create customer 20. get customer info 21.update customer 22.delete customer");
