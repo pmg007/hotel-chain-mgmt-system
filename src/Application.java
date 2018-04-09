@@ -162,6 +162,15 @@ public class Application {
 			case 28:
 				updateManager();
 				break;
+			case 30:
+				addServiceRequested();
+				break;
+			case 31:
+				updateServiceRequested();
+				break;
+			case 32:
+				deleteServiceRequested();
+				break;
 				
 			default:
 				this.prompt("f");
@@ -171,6 +180,95 @@ public class Application {
 		
 	}
 	
+	public void updateServiceRequested() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("enter the service number");
+		int serviceNumber = this.scan.nextInt();
+		String sql = "select * from SERVICE_REQUESTED where ServiceNumber=?";
+		
+		PreparedStatement ps = connection.prepareStatement(sql);
+		
+		ps.setInt(1, serviceNumber);
+		ResultSet rs = ps.executeQuery();
+		int receptingStaffidfetched=0;
+		int serviceStaffidfetched=0;
+		if (rs.next()) {
+			serviceStaffidfetched = rs.getInt(2);
+			receptingStaffidfetched = rs.getInt(3);
+			
+		}	
+		prompt("1. change recepting staff 2. change service staff id");
+		int choice = this.scan.nextInt();
+		switch (choice) {
+		case 1:
+			prompt("enter recepting staff id:");		
+			int receptingStaffid = scan.nextInt();
+			updateServiceRequestedHelper(serviceNumber, receptingStaffid, serviceStaffidfetched);
+			break;
+		case 2: 
+			prompt("enter service staff id:");
+			int serviceStaffid = scan.nextInt();
+			updateServiceRequestedHelper(serviceNumber, receptingStaffidfetched, serviceStaffid);
+			break;
+			
+		default:
+			prompt("invalid option");
+			break;
+		}
+
+				
+	}
+
+
+	public void updateServiceRequestedHelper(int serviceNumber, int receptingStaffid, int serviceStaffid) throws SQLException {
+		// TODO Auto-generated method stub
+		String sql = "update SERVICE_REQUESTED set ReceptingStaffID=?, ServiceStaffID=? where ServiceNumber=? ";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setInt(1, receptingStaffid);
+		ps.setInt(2, serviceStaffid);
+		ps.setInt(3, serviceNumber);
+		ps.executeQuery();		
+		
+	}
+
+
+	public void deleteServiceRequested() throws SQLException {
+		// TODO Auto-generated method stub
+		prompt("enter service number"); 
+		int serviceNumber = this.scan.nextInt();
+		String sql = "delete from SERVICE_REQUESTED where ServiceNumber=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setInt(1, serviceNumber);
+		ps.executeQuery();				
+	}
+
+
+	public void addServiceRequested() throws SQLException{
+		// TODO Auto-generated method stub
+		int serviceid, hotelid,serviceStaffid, receptingStaffid;		
+		prompt("Enter service id ( lim 3 digit)"); 
+		serviceid = scan.nextInt();
+		prompt("Enter hotelid");
+		hotelid = scan.nextInt();
+		prompt("Enter service staff id");
+		serviceStaffid = scan.nextInt();
+		prompt("Enter recepting staff id");
+		receptingStaffid = scan.nextInt();
+		String sql = "INSERT into SERVICE_REQUESTED (ServiceStaffID,ReceptingStaffid,ServiceID, HotelID) values (?,?,?,?)";
+		try {
+			PreparedStatement ps = this.connection.prepareStatement(sql);			
+			ps.setInt(1, serviceStaffid );
+			ps.setInt(2, receptingStaffid);
+			ps.setInt(3, serviceid);
+			ps.setInt(4, hotelid);		
+			ps.executeQuery();
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}		
+	}
+
+
 	public void updateManager() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("enter the hotel id");
@@ -402,7 +500,7 @@ public class Application {
 		String sql = "delete from CUSTOMER where Email=?";
 		PreparedStatement ps = this.connection.prepareStatement(sql);
 		ps.setString(1, customerEmail);
-		ps.executeQuery();		
+		ps.executeQuery();	
 	}
 
 
@@ -534,7 +632,7 @@ public class Application {
 		//prompt("enter room number"); int roomNumber = this.scan.nextInt();
 		prompt("please enter the staff id");
 		int staffid = this.scan.nextInt();
-		String sql = "delete from STAFF where StaffID=?";
+		String sql = "delete * from STAFF where StaffID=?";
 		PreparedStatement ps = this.connection.prepareStatement(sql);
 		ps.setInt(1, staffid);		
 		ps.executeQuery();	
@@ -661,7 +759,7 @@ public class Application {
 		prompt("enter room number"); int roomNumber = this.scan.nextInt();
 		prompt("please enter the hotel id");
 		int hotelid = this.scan.nextInt();
-		String sql = "delete from HOTEL where HotelID=? and RoomNumber=?";
+		String sql = "delete  from HOTEL where HotelID=? and RoomNumber=?";
 		PreparedStatement ps = this.connection.prepareStatement(sql);
 		ps.setInt(1, hotelid);
 		ps.setInt(2, roomNumber);
