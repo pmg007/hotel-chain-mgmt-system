@@ -223,6 +223,19 @@ public class Application {
 
 	public void reportOccupancyByCity() throws SQLException{
 		// TODO Auto-generated method stub
+		prompt("enter city:");
+		String city = this.scan.next();
+		String sql="SELECT t.HotelID, t.Category, o.Occupied, t.TotalRooms, o.Occupied/t.TotalRooms*100 AS  Percentage_of_room_occupied FROM (SELECT    COUNT(roomNumber) AS Occupied, HotelID, Category FROM room WHERE availability=? AND HotelID=?  GROUP BY Category) o RIGHT OUTER JOIN (SELECT COUNT(roomNumber) AS TotalRooms, HotelID, Category FROM room WHERE   hotelID=? GROUP BY Category) t ON o.Category=t.Category ";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setBoolean(1, false);
+		ps.setInt(2, hotelid);
+		ps.setInt(3, hotelid);
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()) {
+			prompt("hotelid:"+rs.getInt(1) + " room type:"+rs.getString(2)+" occupied:"+rs.getInt(3)+" total rooms:"+rs.getInt(4)+" percentage of rooms:"+rs.getDouble(5));
+		}
+		
+		
 		
 	}
 
@@ -235,6 +248,17 @@ public class Application {
 
 	public void reportOccupancyByRoomType() throws SQLException{
 		// TODO Auto-generated method stub
+		prompt("enter hotel id:");
+		int hotelid = this.scan.nextInt();
+		String sql="SELECT t.HotelID, t.Category, o.Occupied, t.TotalRooms, o.Occupied/t.TotalRooms*100 AS  Percentage_of_room_occupied FROM (SELECT    COUNT(roomNumber) AS Occupied, HotelID, Category FROM room WHERE availability=? AND HotelID=?  GROUP BY Category) o RIGHT OUTER JOIN (SELECT COUNT(roomNumber) AS TotalRooms, HotelID, Category FROM room WHERE   hotelID=? GROUP BY Category) t ON o.Category=t.Category ";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setBoolean(1, false);
+		ps.setInt(2, hotelid);
+		ps.setInt(3, hotelid);
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()) {
+			prompt("hotelid:"+rs.getInt(1) + " room type:"+rs.getString(2)+" occupied:"+rs.getInt(3)+" total rooms:"+rs.getInt(4)+" percentage of rooms:"+rs.getDouble(5));
+		}
 		
 	}
 
