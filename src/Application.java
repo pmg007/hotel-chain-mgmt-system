@@ -10,7 +10,11 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
 import javax.naming.spi.DirStateFactory.Result;
@@ -103,118 +107,83 @@ public class Application {
 	}
 
 
-	public void adminHandler() throws SQLException, ParseException{
+	public void checkoutRoom() throws SQLException{
 		// TODO Auto-generated method stub
-		int choice  = this.viewAdminOptions();
-		switch(choice) {
-			case 1:
-				addHotel();
-				break;
-			case 2:
-				getHotelInfoByID();
-				break;
-			case 3:
-				updateHotel();
-				break;
-			case 4:
-				deleteHotel();
-				break;
-			case 5:
-				addRoom();
-				break;
-			case 6:
-				updateRoom();
-			case 7:
-				deleteRoom();
-			case 8:
-				addStaff();
-				break;
-			case 9:
-				updateStaff();
-				break;
-			case 10:
-				deleteStaff();
-				break;
-			case 11:
-				getStaffWhoServed();
-				break;
-				
-			case 12:
-				getStaffByDept();
-				break;
-//			case 13:
-//				getStaff();
-				
-			case 14:
-				addService();
-				break;
-			case 15:
-				updateService();
-				break;
-			case 16:
-				deleteService();
-				break;
-			case 17:
-				checkRoomAvailability();
-				break;
-			//case 18:
-			case 19:
-				addCustomer();
-				break;
-			case 20:
-				getCustomerInfoByEmail();
-				break;
-			case 21:
-				updateCustomer();
-				break;
-			case 22:
-				deleteCustomer();
-				break;
-			case 23:
-				createBooking();
-				break;
-//			case 24:
-//				updateBooking();
-//				break;
-			case 25:
-				deleteBooking();
-				break;
-			case 27:
-				getRevenueByDateRange();
-				break;
-			case 28:
-				updateManager();
-				break;
-			case 30:
-				addServiceRequested();
-				break;
-			case 31:
-				updateServiceRequested();
-				break;
-			case 32:
-				deleteServiceRequested();
-				break;
-			case 33:
-				reportOccupancyByHotel();
-				break;
-			case 34:
-				reportOccupancyByRoomType();
-				break;
-			case 35:
-				reportOccupancyByDateRange();
-				break;
-			case 36:
-				reportOccupancyByCity();
-				break;
-				
-			default:
-				this.prompt("f");
-				
-				
+		prompt("enter booking id");
+		int bookingid=this.scan.nextInt();
+		
+		
+		String sql1="update BOOKING set CheckoutTime=? where BookingID=?";
+		Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        //System.out.println( sdf.format(cal.getTime()) );//checkout time
+		PreparedStatement ps1 = this.connection.prepareStatement(sql1);
+		ps1.setString(1, sdf.format(cal.getTime()));
+		ps1.setInt(2, bookingid);
+		ps1.executeQuery();
+		
+		String sql2="SELECT HotelID, RoomNumber from BOOKING where BookingID=?";
+		PreparedStatement ps2 = this.connection.prepareStatement(sql2);
+		ps2.setInt(1, bookingid);
+		ResultSet rs=ps2.executeQuery();
+		int hotelid=0, roomNumber=0;
+		if(rs.next()){
+			hotelid=rs.getInt(1);roomNumber=rs.getInt(2);
+		}
+		
+		
+		String sql3="update ROOM set Availability=? where HotelID=? and RoomNumber=?";//room status change
+		PreparedStatement ps3=this.connection.prepareStatement(sql3);
+		ps3.setBoolean(1, true);
+		ps3.setInt(2, hotelid);
+		ps3.setInt(3, roomNumber);
+		ps3.executeQuery();
+		
+		
+		String sql4="SELECT Category from ROOM where RoomNumber=? and HotelID=?";//find room type
+		PreparedStatement ps4=this.connection.prepareStatement(sql4);
+		ps4.setInt(1, roomNumber);
+		ps4.setInt(2, hotelid);		
+		ResultSet rs4=ps4.executeQuery();		
+		String roomType="";
+		if(rs.next()){
+			roomType=rs.getString(1);
+			
+		}
+		
+		String sql5 = "select RoomServiceStaffID, CleanerStaffID from PRESIDENTIAL_ROOM where HotelID=? and RoomNumber=?"; //update staff to be available
+		//Set<Integer> set = new HashSet<Integer>();
+		PreparedStatement ps5= this.connection.prepareStatement(sql5);
+		ps5.setInt(1, hotelid);
+		ps5.setInt(2, roomNumber);
+		ResultSet rs5 = ps5.executeQuery();
+		while(rs5.next()) {
+			int sid=rs5.getInt(1),sid2=rs5.getInt(2);
+			String sql5i ="update STAFF set Availability=? where StaffID=?";
+			PreparedStatement ps5i=connection.prepareStatement(sql5i);
+			//PreparedStatement ps5ii=connection.prepareStatement(sql5i);
+			ps5i.setBoolean(1, true);
+			ps5i.setInt(2, sid);
+			ps5i.executeQuery();
+			ps5i.setInt(2, sid2);
+			ps5i.executeQuery();
+		}
+		
+		
+		
+		if(roomType.equalsIgnoreCase("Presidential Suite")){
+			String sql6="update PRESIDENTIAL_ROOM set RoomServiceStaffID=? and CleanerStaffID=? where HotelID=? and RoomNumber=?"; //presidential staff isavailable status flag, cleaner, roomserviceid set null
+			PreparedStatement ps6=connection.prepareStatement(sql6);
+			ps6.setNull(1, Types.INTEGER);
+			ps6.setNull(2, Types.INTEGER);
+			ps6.setInt(3, hotelid);
+			ps6.setInt(4, roomNumber);
+			ps6.executeQuery();			
 		}
 		
 	}
-	
+
+
 	public void deleteBooking() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("please enter the booking id");
@@ -297,15 +266,7 @@ public class Application {
 		prompt("enter customer email id"); customerEmail = this.scan.next();
 		prompt("enter checkin time"); checkinTime = this.scan.next();
 		prompt("Enter room number"); roomNumber = scan.nextInt();
-		// @SuppressWarnings("deprecation")
-//		Date dstartDate,dendDate;
-//		//java.sql.Date temp = new java.sql.Date()
-//		dstartDate =  (Date) new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
-//		dendDate = (Date) new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
-//		
-//			// TODO Auto-generated catch block
-//			
-//		long numberOfDays = TimeUnit.DAYS.convert(dendDate.getTime()-dstartDate.getTime(), TimeUnit.MILLISECONDS);
+		
 		
 		DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		LocalDate dstartDate = LocalDate.parse(startDate,dtFormatter);
@@ -1420,6 +1381,121 @@ public class Application {
 		int option = scan.nextInt();
 		return option;
 	}
+
+
+	public void adminHandler() throws SQLException, ParseException{
+			// TODO Auto-generated method stub
+			int choice  = this.viewAdminOptions();
+			switch(choice) {
+				case 1:
+					addHotel();
+					break;
+				case 2:
+					getHotelInfoByID();
+					break;
+				case 3:
+					updateHotel();
+					break;
+				case 4:
+					deleteHotel();
+					break;
+				case 5:
+					addRoom();
+					break;
+				case 6:
+					updateRoom();
+				case 7:
+					deleteRoom();
+				case 8:
+					addStaff();
+					break;
+				case 9:
+					updateStaff();
+					break;
+				case 10:
+					deleteStaff();
+					break;
+				case 11:
+					getStaffWhoServed();
+					break;
+					
+				case 12:
+					getStaffByDept();
+					break;
+	//			case 13:
+	//				getStaff();
+					
+				case 14:
+					addService();
+					break;
+				case 15:
+					updateService();
+					break;
+				case 16:
+					deleteService();
+					break;
+				case 17:
+					checkRoomAvailability();
+					break;
+				case 18:
+					checkoutRoom();
+					break;
+				case 19:
+					addCustomer();
+					break;
+				case 20:
+					getCustomerInfoByEmail();
+					break;
+				case 21:
+					updateCustomer();
+					break;
+				case 22:
+					deleteCustomer();
+					break;
+				case 23:
+					createBooking();
+					break;
+	//			case 24:
+	//				updateBooking();
+	//				break;
+				case 25:
+					deleteBooking();
+					break;
+				case 27:
+					getRevenueByDateRange();
+					break;
+				case 28:
+					updateManager();
+					break;
+				case 30:
+					addServiceRequested();
+					break;
+				case 31:
+					updateServiceRequested();
+					break;
+				case 32:
+					deleteServiceRequested();
+					break;
+				case 33:
+					reportOccupancyByHotel();
+					break;
+				case 34:
+					reportOccupancyByRoomType();
+					break;
+				case 35:
+					reportOccupancyByDateRange();
+					break;
+				case 36:
+					reportOccupancyByCity();
+					break;
+					
+				default:
+					this.prompt("f");
+					
+					
+			}
+			
+		}
 
 
 	public static void main(String[] args) throws ParseException {
