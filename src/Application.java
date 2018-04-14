@@ -173,6 +173,12 @@ public class Application {
 			case 23:
 				createBooking();
 				break;
+//			case 24:
+//				updateBooking();
+//				break;
+			case 25:
+				deleteBooking();
+				break;
 			case 27:
 				getRevenueByDateRange();
 				break;
@@ -209,6 +215,23 @@ public class Application {
 		
 	}
 	
+	public void deleteBooking() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("please enter the booking id");
+		int bookingid = this.scan.nextInt();
+		String sql = "delete from BOOKING where BookingID=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setInt(1, bookingid);
+		ps.executeQuery();
+	}
+
+
+//	public void updateBooking() throws SQLException{
+//		// TODO Auto-generated method stub
+//				
+//	}
+
+
 	public void getRevenueByDateRange() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("enter hotel id");
