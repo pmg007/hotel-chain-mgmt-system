@@ -179,8 +179,9 @@ public class Application {
 			ps6.setInt(3, hotelid);
 			ps6.setInt(4, roomNumber);
 			ps6.executeQuery();			
-		}
+		}	
 		
+		generateBill(bookingid);
 	}
 
 
@@ -1488,6 +1489,8 @@ public class Application {
 				case 25:
 					deleteBooking();
 					break;
+//				case 26:
+//					
 				case 27:
 					getRevenueByDateRange();
 					break;
@@ -1518,6 +1521,9 @@ public class Application {
 				case 37:
 					getTotalOcupancy();
 					break;
+				case 38:
+					getPercentageOfRoomOccupied();
+					break;
 					
 				default:
 					this.prompt("f");
@@ -1526,6 +1532,112 @@ public class Application {
 			}
 			
 		}
+
+
+	public void generateBill(int bookingid) throws SQLException{
+		// TODO Auto-generated method stub
+		String sql1 = "select * from BOOKING where BookingID=?";
+		PreparedStatement ps1=connection.prepareStatement(sql1);
+		ps1.setInt(1, bookingid);
+		ResultSet rs1=ps1.executeQuery();
+		String startDate="", endDate="", checkinTime="", checkoutTime="", hotelName="", customerEmail="", roomType="",hotelAddress="", hotelCity="", serviceName="";
+		
+		int roomNumber=0, hotelid=0,serviceCost=0;
+		double totalAmount=0;
+		while(rs1.next()) {
+			startDate  = rs1.getString(3);
+			endDate  = rs1.getString(4);
+			checkinTime  = rs1.getString(5);
+			checkoutTime  = rs1.getString(6);
+			customerEmail = rs1.getString(7);
+			hotelid=rs1.getInt(8);
+			roomNumber=rs1.getInt(9);
+		}
+		
+		String sql2 = "select Category from ROOM where RoomNumber=? and hotelid=?";
+		PreparedStatement ps2=connection.prepareStatement(sql2);
+		ps2.setInt(1, roomNumber);
+		ps2.setInt(2, hotelid);
+		ResultSet rs2=ps2.executeQuery();
+		if(rs2.next()) {
+			roomType=rs2.getString(1);
+		}
+		
+		String sql3 = "select Name, Address, City from HOTEL where hotelid=?";
+		PreparedStatement ps3=connection.prepareStatement(sql3);
+		ps3.setInt(1, hotelid);
+		ResultSet rs3=ps3.executeQuery();
+		if(rs3.next()) {
+			hotelName=rs3.getString(1);
+			hotelAddress = rs3.getString(2);
+			hotelCity = rs3.getString(3);
+		}
+		
+		long billNumber=0,cardNumber=0;
+		String paymentMode="", billAddress="";
+		String sql4 = "select * from BILL where BookingID=?";
+		PreparedStatement ps4=connection.prepareStatement(sql4);
+		ps4.setInt(1, bookingid);
+		ResultSet rs4=ps4.executeQuery();
+		if(rs4.next()) {
+			billNumber=rs4.getLong(1);
+			paymentMode = rs4.getString(2);
+			cardNumber = rs4.getLong(3);
+			billAddress = rs4.getString(4);
+			totalAmount = rs4.getDouble(6);
+		}
+		
+		
+		
+		prompt(hotelName +", "+hotelAddress+", "+hotelCity);
+		prompt("bill number:"+ billNumber + "\t booking id:" +bookingid + " payment mode:"+paymentMode);
+		
+		prompt("customer email:"+customerEmail);
+		prompt("billing address:"+billAddress);
+		prompt("start date:"+startDate +", "+" checkin time:"+checkinTime);
+		prompt("end date:"+endDate+ ", "+ "checkout time"+checkoutTime);
+		prompt("room number:"+roomNumber+ " room type:"+roomType+ " room cost:"+totalAmount);
+		//prompt("room cost:"+totalAmount);
+		
+		
+		
+		String sql5 = "SELECT ServiceName, Cost FROM service WHERE ServiceId IN(SELECT ServiceID FROM Service_requested WHERE ServiceNumber IN(SELECT ServiceNumber FROM service_booking WHERE BookingID=?)) AND HotelID = (SELECT HotelID FROM booking WHERE BookingID=?);";
+		PreparedStatement ps5 = connection.prepareStatement(sql5);
+		ps5.setInt(1, bookingid);
+		ps5.setInt(2, bookingid);
+		ResultSet rs5 = ps5.executeQuery();
+		prompt("service name \t service cost ");
+		while(rs5.next()) {
+			serviceName = rs5.getString(1);
+			serviceCost = rs5.getInt(2);
+			prompt(serviceName+"\t"+serviceCost);
+			totalAmount+=serviceCost;			
+		}
+		
+		if(paymentMode.equalsIgnoreCase("WOLFINN CREDIT CARD")) {
+			totalAmount=0.95*totalAmount;
+			prompt("5 % discount for you!!");
+		}
+		prompt("total= "+totalAmount);
+		//String sql6 // to update total amount in bill table
+		
+		String sql6 = "update BILL set TotalAmount=? where BookingID=?";
+		PreparedStatement ps6 = connection.prepareStatement(sql6);
+		ps6.setDouble(1, totalAmount);
+		ps6.setInt(2, bookingid);
+		ps6.executeQuery();
+	}
+
+
+	public void getPercentageOfRoomOccupied() throws SQLException{
+		// TODO Auto-generated method stub
+		String sql = "SELECT t.HotelID, o.Occupied, t.TotalRooms, o.Occupied/t.TotalRooms*100 AS Percentage_of_room_occupied FROM (SELECT  COUNT(roomNumber)   AS Occupied, HotelID FROM room WHERE Availability=0  GROUP BY HotelID) o RIGHT OUTER JOIN (SELECT COUNT(roomNumber) AS TotalRooms, HotelID FROM room GROUP BY HotelID) t  ON o.HotelID=t.HotelID;";
+		PreparedStatement ps=connection.prepareStatement(sql);
+		ResultSet rs=ps.executeQuery();
+		while(rs.next()) {
+			prompt("hotelid:"+rs.getInt(1)+" occupied:"+rs.getInt(2)+" total rooms:"+rs.getInt(3)+" percentage:"+rs.getDouble(4));
+		}		
+	}
 
 
 	public void getTotalOcupancy() throws SQLException{
