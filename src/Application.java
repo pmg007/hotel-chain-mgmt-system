@@ -223,20 +223,16 @@ public class Application {
 
 	public void reportOccupancyByCity() throws SQLException{
 		// TODO Auto-generated method stub
-		prompt("enter city:");
-		String city = this.scan.next();
-		String sql="SELECT t.HotelID, t.Category, o.Occupied, t.TotalRooms, o.Occupied/t.TotalRooms*100 AS  Percentage_of_room_occupied FROM (SELECT    COUNT(roomNumber) AS Occupied, HotelID, Category FROM room WHERE availability=? AND HotelID=?  GROUP BY Category) o RIGHT OUTER JOIN (SELECT COUNT(roomNumber) AS TotalRooms, HotelID, Category FROM room WHERE   hotelID=? GROUP BY Category) t ON o.Category=t.Category ";
+		///////////////////////////////////////////
+		//incomplete
+		/////////////////////
+		
+		String sql="SELECT c.City, CASE  WHEN SUM(z.Occupied) IS NULL THEN 0 ELSE SUM(z.Occupied) END AS Occupancy, SUM(z.TotalRooms) AS TotalRooms,  CASE WHEN SUM(z.Occupied/z.TotalRooms*100) IS NULL THEN 0 ELSE SUM(z.Occupied/z.TotalRooms*100) END AS Percentage_occupancy_by_City FROM (SELECT t.HotelID, o.Occupied, t.TotalRooms FROM (SELECT   COUNT(roomNumber) AS Occupied , HotelID FROM room WHERE Availability=0  GROUP BY HotelID) o RIGHT OUTER JOIN (SELECT COUNT(roomNumber) AS TotalRooms, HotelID FROM room GROUP BY HotelID) t  ON o.HotelID=t.HotelID) z JOIN (SELECT City , HotelID FROM hotel) c ON c.HotelID=z.HotelID GROUP BY c.City;";
 		PreparedStatement ps = this.connection.prepareStatement(sql);
-		ps.setBoolean(1, false);
-		ps.setInt(2, hotelid);
-		ps.setInt(3, hotelid);
 		ResultSet rs = ps.executeQuery();
 		while(rs.next()) {
-			prompt("hotelid:"+rs.getInt(1) + " room type:"+rs.getString(2)+" occupied:"+rs.getInt(3)+" total rooms:"+rs.getInt(4)+" percentage of rooms:"+rs.getDouble(5));
-		}
-		
-		
-		
+			prompt("city:"+rs.getString(1) + " occupied:"+rs.getInt(2)+" total rooms:"+rs.getInt(3)+" percentage occupancy by city:"+rs.getDouble(4));
+		}		
 	}
 
 
@@ -1519,6 +1515,9 @@ public class Application {
 				case 36:
 					reportOccupancyByCity();
 					break;
+				case 37:
+					getTotalOcupancy();
+					break;
 					
 				default:
 					this.prompt("f");
@@ -1527,6 +1526,19 @@ public class Application {
 			}
 			
 		}
+
+
+	public void getTotalOcupancy() throws SQLException{
+		// TODO Auto-generated method stub
+		String sql = "SELECT rs.HotelID,CASE WHEN SUM(rs.GuestNumber) IS NULL THEN 0 ELSE SUM(rs.GuestNumber) END AS TotalOccupancy FROM (SELECT A.BookingID, A.GuestNumber, room.`HotelID`,room.`RoomNumber` FROM (SELECT * FROM Booking WHERE startDate<=? AND EndDate>=?) A RIGHT JOIN room ON A.HotelID = room.`HotelID` AND A.RoomNumber=room.`RoomNumber`) rs GROUP BY rs.HotelID;";
+		PreparedStatement ps=connection.prepareStatement(sql);
+		ps.setString(1,java.time.LocalDateTime.now().toString());
+		ps.setString(2,java.time.LocalDateTime.now().toString());
+		ResultSet rs=ps.executeQuery();
+		while(rs.next()) {
+			prompt("hotelid:"+rs.getInt(1)+" total occupancy(number of guests):"+rs.getInt(2));
+		}				
+	}
 
 
 	public static void main(String[] args) throws ParseException {
