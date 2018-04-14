@@ -1,10 +1,17 @@
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 
 public class Application {
@@ -40,7 +47,7 @@ public class Application {
 	    }
 	
 	
-	public void start(int choice) throws SQLException {
+	public void start(int choice) throws SQLException, ParseException {
 		// TODO Auto-generated method stub
 		String userName="", userPassword="";
 		this.prompt("Enter id and password");
@@ -94,7 +101,7 @@ public class Application {
 	}
 
 
-	public void adminHandler() throws SQLException{
+	public void adminHandler() throws SQLException, ParseException{
 		// TODO Auto-generated method stub
 		int choice  = this.viewAdminOptions();
 		switch(choice) {
@@ -185,8 +192,18 @@ public class Application {
 		
 	}
 	
-	public void createBooking() throws SQLException{
+	public void createBooking() throws SQLException, ParseException{
 		// TODO Auto-generated method stub
+		prompt("enter customer email id"); 
+		String checkCustomerEmail = this.scan.next();
+		String sql = "SELECT Email from CUSTOMER where Email=?";
+		PreparedStatement ps=this.connection.prepareStatement(sql);
+		ps.setString(1, checkCustomerEmail);
+		ResultSet rs=ps.executeQuery();
+		if(!rs.next()){
+			addCustomer();
+		}
+		checkRoomAvailability();
 		int guestNumber, hotelid, roomNumber;
 		String startDate, endDate, checkinTime, checkoutTime=null, customerEmail;		
 		prompt("Enter number of guests"); guestNumber = scan.nextInt();
@@ -196,24 +213,93 @@ public class Application {
 		prompt("enter customer email id"); customerEmail = this.scan.next();
 		prompt("enter checkin time"); checkinTime = this.scan.next();
 		prompt("Enter room number"); roomNumber = scan.nextInt();
+		// @SuppressWarnings("deprecation")
+//		Date dstartDate,dendDate;
+//		//java.sql.Date temp = new java.sql.Date()
+//		dstartDate =  (Date) new SimpleDateFormat("yyyy-MM-dd").parse(startDate);
+//		dendDate = (Date) new SimpleDateFormat("yyyy-MM-dd").parse(endDate);
+//		
+//			// TODO Auto-generated catch block
+//			
+//		long numberOfDays = TimeUnit.DAYS.convert(dendDate.getTime()-dstartDate.getTime(), TimeUnit.MILLISECONDS);
 		
-		String sql = "INSERT into BOOKING (GuestNumber, StartDate, EndDate, CheckInTime,CheckOutTime, CustomerEmail, HotelID, RoomNumber) values (?,?,?,?,?,?,?,?)";
+		DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate dstartDate = LocalDate.parse(startDate,dtFormatter);
+		LocalDate dendDate = LocalDate.parse(endDate,dtFormatter);
+		long numberOfDays = ChronoUnit.DAYS.between(dstartDate, dendDate);
+		String sql1 = "INSERT into BOOKING (GuestNumber, StartDate, EndDate, CheckInTime,CheckOutTime, CustomerEmail, HotelID, RoomNumber) values (?,?,?,?,?,?,?,?)";
 		try {
-			PreparedStatement ps = this.connection.prepareStatement(sql);			
-			ps.setInt(1, guestNumber);
-			ps.setString(2, startDate);
-			ps.setString(3, endDate);
-			ps.setString(4, checkinTime);
-			ps.setString(5, checkoutTime);
-			ps.setString(6, customerEmail);
-			ps.setInt(7, hotelid);
-			ps.setInt(8, roomNumber);			
-			ps.executeQuery();
+			PreparedStatement ps1 = this.connection.prepareStatement(sql1);			
+			ps1.setInt(1, guestNumber);
+			ps1.setString(2, startDate);
+			ps1.setString(3, endDate);
+			ps1.setString(4, checkinTime);
+			ps1.setString(5, checkoutTime);
+			ps1.setString(6, customerEmail);
+			ps1.setInt(7, hotelid);
+			ps1.setInt(8, roomNumber);			
+			ps1.executeQuery();
+			
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
+		try {
+			String sql2="select max(BookingID) from BOOKING";
+			int bookingid=0;
+			PreparedStatement ps2=connection.prepareStatement(sql2);
+			ResultSet rs2 = ps2.executeQuery();
+			if(rs2.next()) {
+				bookingid = rs2.getInt(1);
+			}
+			initBill(bookingid,hotelid,roomNumber,numberOfDays);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();;
+		}
 		
+	}
+
+
+	public void initBill(int bookingid, int hotelid, int roomNumber, long numberOfDays) throws SQLException{
+		// TODO Auto-generated method stub
+		scan.nextLine();
+		String paymentMode="";
+		prompt("enter paymentMode mode");
+		paymentMode = this.scan.nextLine();
+		long cardNumber;
+		if(paymentMode.equalsIgnoreCase("CASH")){
+			cardNumber=(Long) null;
+		} else {
+			prompt("enter card number");
+			cardNumber =this.scan.nextLong();
+		}
+		scan.nextLine();
+		prompt("enter bill address");
+		String billAddress = this.scan.nextLine();
+		prompt("enter ssn number");
+		long ssn = this.scan.nextLong();
+		String sql = "SELECT Category, Rate from ROOM where HotelID=? and RoomNumber=?";
+		PreparedStatement ps=connection.prepareStatement(sql);
+		ps.setInt(1, hotelid);
+		ps.setInt(2, roomNumber);
+		String roomType;
+		int rate=0;
+		ResultSet rs = ps.executeQuery();
+		if(rs.next()) {
+			roomType=rs.getString(1);
+			rate = rs.getInt(2);
+		}
+		double totalAmount = rate*numberOfDays;
+		String sql1 = "INSERT into BILL (PaymentMode, CardNumber, BillAddress, SSN, TotalAmount, BookingID) values (?,?,?,?,?,?)";
+		PreparedStatement ps1 = this.connection.prepareStatement(sql1);
+		ps1.setString(1, paymentMode);
+		ps1.setLong(2, cardNumber);
+		ps1.setString(3, billAddress);
+		ps1.setLong(4, ssn);
+		ps1.setDouble(5, totalAmount);
+		ps1.setInt(6, bookingid);
+		ps1.executeQuery();		
 	}
 
 
@@ -385,9 +471,9 @@ public class Application {
 		ps.setInt(5, hotelid);
 		ResultSet rs = ps.executeQuery();
 		while(rs.next()) {
-			prompt("room number:"+rs.getInt(1)+" hotel id:"+rs.getInt(2)+" serviceDesc:"
-					+rs.getString(3)+" max occupancy:"+rs.getInt(4)+" category:"+rs.getString(5)
-					+" availability:"+rs.getString(6)+" rate:"+rs.getInt(7));
+			prompt("room number:"+rs.getInt(1)+" \n hotel id:"+rs.getInt(2)+" \n serviceDesc:"
+					+rs.getString(3)+" \n max occupancy:"+rs.getInt(4)+" \n category:"+rs.getString(5)
+					+" \n availability:"+rs.getString(6)+" \n rate:"+rs.getInt(7)+"\n");
 		}	
 		
 	}
@@ -411,9 +497,9 @@ public class Application {
 		ps.setString(6, roomType);
 		ResultSet rs = ps.executeQuery();
 		while(rs.next()) {
-			prompt("room number:"+rs.getInt(1)+" hotel id:"+rs.getInt(2)+" serviceDesc:"
-					+rs.getString(3)+" max occupancy:"+rs.getInt(4)+" category:"+rs.getString(5)
-					+" availability:"+rs.getString(6)+" rate:"+rs.getInt(7));
+			prompt("room number:"+rs.getInt(1)+" \n hotel id:"+rs.getInt(2)+" \n serviceDesc:"
+					+rs.getString(3)+" \n max occupancy:"+rs.getInt(4)+" \n category:"+rs.getString(5)
+					+" \n availability:"+rs.getString(6)+" \n rate:"+rs.getInt(7)+"\n");
 		}		
 	}
 
@@ -1102,7 +1188,7 @@ public class Application {
 	}
 
 
-	public void addHotel() throws SQLException {
+	public void addHotel() throws SQLException, ParseException {
 		// TODO Auto-generated method stub
 		String name, address, city, state, email, phone;
 		//int  managerid=(Integer) null;		
@@ -1213,6 +1299,23 @@ public class Application {
 	 }
 
 
+
+
+
+	public void updateRoomHelper(int roomNumber, int hotelid, String serviceDesc, int maxOccupancy, String category, Boolean availability, int rate) throws SQLException{		
+		String sql = "update ROOM SET ServiceDesc=?, MaxOccupancy=?, Category=?, Availability=?, Rate=? where HotelID=? and RoomNumber=?";
+		PreparedStatement ps = this.connection.prepareStatement(sql);
+		ps.setString(1, serviceDesc);
+		ps.setInt(2, maxOccupancy);
+		ps.setString(3,  category);
+		ps.setBoolean(4, availability);
+		ps.setInt(5, rate);
+		ps.setInt(6, hotelid);
+		ps.setInt(7, roomNumber);			
+		ps.executeQuery();
+	}
+
+
 	public int viewAdminOptions() {
 		// TODO Auto-generated method stub
 		prompt("1.Create Hotel 2.Get hotel info 3. update hotel 4.delete hotel");
@@ -1231,21 +1334,7 @@ public class Application {
 	}
 
 
-	public void updateRoomHelper(int roomNumber, int hotelid, String serviceDesc, int maxOccupancy, String category, Boolean availability, int rate) throws SQLException{		
-		String sql = "update ROOM SET ServiceDesc=?, MaxOccupancy=?, Category=?, Availability=?, Rate=? where HotelID=? and RoomNumber=?";
-		PreparedStatement ps = this.connection.prepareStatement(sql);
-		ps.setString(1, serviceDesc);
-		ps.setInt(2, maxOccupancy);
-		ps.setString(3,  category);
-		ps.setBoolean(4, availability);
-		ps.setInt(5, rate);
-		ps.setInt(6, hotelid);
-		ps.setInt(7, roomNumber);			
-		ps.executeQuery();
-	}
-
-
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException {
 		// TODO Auto-generated method stub
 		Scanner scan = new Scanner(System.in);
         Application app = new Application(scan);
