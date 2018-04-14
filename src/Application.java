@@ -1409,8 +1409,10 @@ public class Application {
 					break;
 				case 6:
 					updateRoom();
+					break;
 				case 7:
 					deleteRoom();
+					break;
 				case 8:
 					addStaff();
 					break;
