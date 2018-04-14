@@ -13,6 +13,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+import javax.naming.spi.DirStateFactory.Result;
+
 
 public class Application {
 	
@@ -171,6 +173,9 @@ public class Application {
 			case 23:
 				createBooking();
 				break;
+			case 27:
+				getRevenueByDateRange();
+				break;
 			case 28:
 				updateManager();
 				break;
@@ -183,6 +188,18 @@ public class Application {
 			case 32:
 				deleteServiceRequested();
 				break;
+			case 33:
+				reportOccupancyByHotel();
+				break;
+			case 34:
+				reportOccupancyByRoomType();
+				break;
+			case 35:
+				reportOccupancyByDateRange();
+				break;
+			case 36:
+				reportOccupancyByCity();
+				break;
 				
 			default:
 				this.prompt("f");
@@ -192,6 +209,50 @@ public class Application {
 		
 	}
 	
+	public void getRevenueByDateRange() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("enter hotel id");
+		int hotelid = this.scan.nextInt();
+		prompt("enter start date");
+		String startDate=this.scan.next();
+		prompt("enter end date");
+		String endDate=this.scan.next();
+		String sql = "select sum(TotalAmount) Revenue from BILL b, BOOKING bk where (b.BookingID=bk.BookingID and EndDate BETWEEN ? and ?) and HotelID=?";
+		PreparedStatement ps=connection.prepareStatement(sql);
+		ps.setString(1, startDate);
+		ps.setString(2, endDate);
+		ps.setInt(3, hotelid);
+		ResultSet rs=ps.executeQuery();
+		if(rs.next()) {
+			prompt("revenue for hotel with hotel id "+hotelid+" is:"+rs.getFloat(1));
+		}
+	}
+
+
+	public void reportOccupancyByCity() throws SQLException{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public void reportOccupancyByDateRange() throws SQLException{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public void reportOccupancyByRoomType() throws SQLException{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public void reportOccupancyByHotel() throws SQLException{
+		// TODO Auto-generated method stub
+		
+	}
+
+
 	public void createBooking() throws SQLException, ParseException{
 		// TODO Auto-generated method stub
 		prompt("enter customer email id"); 
@@ -462,7 +523,7 @@ public class Application {
 		prompt("enter start date and end date (YYYY-MM-DD)");
 		String requestedStartDate=this.scan.next(), requestedEndDate=this.scan.next();
 		
-		String sql = "select * from Room where RoomNumber not in(Select Distinct(RoomNumber) from Booking Where CheckOutTime is Null AND ((StartDate<? and EndDate>?) or(StartDate>? and StartDate<?))) and HotelID=?;";
+		String sql = "select * from Room where RoomNumber not in(Select Distinct(RoomNumber) from Booking Where CheckOutTime is Null AND ((StartDate<=? and EndDate>=?) or(StartDate>=? and StartDate<=?))) and HotelID=?;";
 		PreparedStatement ps=connection.prepareStatement(sql);
 		ps.setString(1, requestedStartDate);
 		ps.setString(2, requestedStartDate);
@@ -487,7 +548,7 @@ public class Application {
 		String requestedStartDate=this.scan.next(), requestedEndDate=this.scan.next();
 		prompt("enter room type:");
 		String roomType = this.scan.next();		
-		String sql = "select * from Room where RoomNumber not in(Select Distinct(RoomNumber) from Booking Where CheckOutTime is Null AND ((StartDate<? and EndDate>?) or(StartDate>? and StartDate<?))) and HotelID=? and Category=?;";
+		String sql = "select * from Room where RoomNumber not in(Select Distinct(RoomNumber) from Booking Where CheckOutTime is Null AND ((StartDate<=? and EndDate>=?) or(StartDate>=? and StartDate<=?))) and HotelID=? and Category=?;";
 		PreparedStatement ps=connection.prepareStatement(sql);
 		ps.setString(1, requestedStartDate);
 		ps.setString(2, requestedStartDate);
@@ -1325,10 +1386,14 @@ public class Application {
 		prompt("17.Check room availability 18.checkout room ");
 		prompt("19.Create customer 20. get customer info 21.update customer 22.delete customer");
 		prompt("23.Create booking  24. update booking 25.delete booking");
-		prompt("26.generate bill 27. get revenue");
+		prompt("26.generate bill 27. get revenue by date range for a hotel");
 		prompt("28.update manager");
 		prompt("29.assign staff to presidential");
 		prompt("30.Create service request 31. update service request 32. delete service request");
+		prompt("33. Generate report(occupancy by hotel) 34. Generate report(occupancy by room type)");
+		prompt("35. Generate report(occupancy by date range) 36. Generate report(occupancy by city)");
+		prompt("37. total occupancy 38. percentage of room occupied 39. staff grouped by roles ");
+		prompt("40. info of staff serving a customer on a stay");
 		int option = scan.nextInt();
 		return option;
 	}
