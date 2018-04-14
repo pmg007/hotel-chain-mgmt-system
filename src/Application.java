@@ -18,6 +18,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
 import javax.naming.spi.DirStateFactory.Result;
+import javax.xml.transform.Templates;
 
 
 public class Application {
@@ -152,7 +153,6 @@ public class Application {
 		}
 		
 		String sql5 = "select RoomServiceStaffID, CleanerStaffID from PRESIDENTIAL_ROOM where HotelID=? and RoomNumber=?"; //update staff to be available
-		//Set<Integer> set = new HashSet<Integer>();
 		PreparedStatement ps5= this.connection.prepareStatement(sql5);
 		ps5.setInt(1, hotelid);
 		ps5.setInt(2, roomNumber);
@@ -241,7 +241,12 @@ public class Application {
 
 	public void reportOccupancyByHotel() throws SQLException{
 		// TODO Auto-generated method stub
-		
+		String sql = "SELECT t.HotelID, o.Occupied, t.TotalRooms, o.Occupied/t.TotalRooms*100 AS Percentage_of_room_occupied FROM (SELECT  COUNT(roomNumber)   AS Occupied, HotelID FROM room WHERE Availability=0  GROUP BY HotelID) o RIGHT OUTER JOIN (SELECT COUNT(roomNumber) AS TotalRooms, HotelID FROM room GROUP BY HotelID) t  ON o.HotelID=t.HotelID;";
+		PreparedStatement ps=connection.prepareStatement(sql);
+		ResultSet rs=ps.executeQuery();
+		while(rs.next()) {
+			prompt("hotelid:"+rs.getInt(1)+" occupied:"+rs.getInt(2)+" total rooms:"+rs.getInt(3)+" percentage:"+rs.getDouble(4));
+		}
 	}
 
 
