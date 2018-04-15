@@ -17,8 +17,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
-import javax.naming.spi.DirStateFactory.Result;
-import javax.xml.transform.Templates;
 
 
 public class Application {
@@ -30,8 +28,7 @@ public class Application {
 	Scanner scan;
 	int dept = -1;
 	
-	public Application(Scanner scan) {
-		// TODO Auto-generated constructor stub
+	public Application(Scanner scan) {		// TODO Auto-generated constructor stub
 		this.scan = scan;
 	}
 	
@@ -105,83 +102,6 @@ public class Application {
 	public int viewStaffOptions() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-
-	public void checkoutRoom() throws SQLException{
-		// TODO Auto-generated method stub
-		prompt("enter booking id");
-		int bookingid=this.scan.nextInt();
-		
-		
-		String sql1="update BOOKING set CheckoutTime=? where BookingID=?";
-		Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        //System.out.println( sdf.format(cal.getTime()) );//checkout time
-		PreparedStatement ps1 = this.connection.prepareStatement(sql1);
-		ps1.setString(1, sdf.format(cal.getTime()));
-		ps1.setInt(2, bookingid);
-		ps1.executeQuery();
-		
-		String sql2="SELECT HotelID, RoomNumber from BOOKING where BookingID=?";
-		PreparedStatement ps2 = this.connection.prepareStatement(sql2);
-		ps2.setInt(1, bookingid);
-		ResultSet rs=ps2.executeQuery();
-		int hotelid=0, roomNumber=0;
-		if(rs.next()){
-			hotelid=rs.getInt(1);roomNumber=rs.getInt(2);
-		}
-		
-		
-		String sql3="update ROOM set Availability=? where HotelID=? and RoomNumber=?";//room status change
-		PreparedStatement ps3=this.connection.prepareStatement(sql3);
-		ps3.setBoolean(1, true);
-		ps3.setInt(2, hotelid);
-		ps3.setInt(3, roomNumber);
-		ps3.executeQuery();
-		
-		
-		String sql4="SELECT Category from ROOM where RoomNumber=? and HotelID=?";//find room type
-		PreparedStatement ps4=this.connection.prepareStatement(sql4);
-		ps4.setInt(1, roomNumber);
-		ps4.setInt(2, hotelid);		
-		ResultSet rs4=ps4.executeQuery();		
-		String roomType="";
-		if(rs.next()){
-			roomType=rs.getString(1);
-			
-		}
-		
-		String sql5 = "select RoomServiceStaffID, CleanerStaffID from PRESIDENTIAL_ROOM where HotelID=? and RoomNumber=?"; //update staff to be available
-		PreparedStatement ps5= this.connection.prepareStatement(sql5);
-		ps5.setInt(1, hotelid);
-		ps5.setInt(2, roomNumber);
-		ResultSet rs5 = ps5.executeQuery();
-		while(rs5.next()) {
-			int sid=rs5.getInt(1),sid2=rs5.getInt(2);
-			String sql5i ="update STAFF set Availability=? where StaffID=?";
-			PreparedStatement ps5i=connection.prepareStatement(sql5i);
-			//PreparedStatement ps5ii=connection.prepareStatement(sql5i);
-			ps5i.setBoolean(1, true);
-			ps5i.setInt(2, sid);
-			ps5i.executeQuery();
-			ps5i.setInt(2, sid2);
-			ps5i.executeQuery();
-		}
-		
-		
-		
-		if(roomType.equalsIgnoreCase("Presidential Suite")){
-			String sql6="update PRESIDENTIAL_ROOM set RoomServiceStaffID=? and CleanerStaffID=? where HotelID=? and RoomNumber=?"; //presidential staff isavailable status flag, cleaner, roomserviceid set null
-			PreparedStatement ps6=connection.prepareStatement(sql6);
-			ps6.setNull(1, Types.INTEGER);
-			ps6.setNull(2, Types.INTEGER);
-			ps6.setInt(3, hotelid);
-			ps6.setInt(4, roomNumber);
-			ps6.executeQuery();			
-		}	
-		
-		generateBill(bookingid);
 	}
 
 
@@ -276,12 +196,12 @@ public class Application {
 		paymentMode = this.scan.nextLine();
 		long cardNumber;
 		if(paymentMode.equalsIgnoreCase("CASH")){
-			cardNumber=(Long) null;
+			cardNumber=0;
 		} else {
 			prompt("enter card number");
 			cardNumber =this.scan.nextLong();
 		}
-		scan.nextLine();
+		//scan.nextLine();
 		prompt("enter bill address");
 		String billAddress = this.scan.nextLine();
 		prompt("enter ssn number");
@@ -345,6 +265,7 @@ public class Application {
 			prompt("invalid option");
 			break;
 		}
+		
 
 				
 	}
@@ -712,8 +633,9 @@ public class Application {
 		// TODO Auto-generated method stub
 		
 		
-		String customerName, customerEmail, customerDOB, customerPhone;		
-		prompt("Enter customer name:"); customerName = scan.next();
+		String customerName, customerEmail, customerDOB, customerPhone;	
+		scan.nextLine();
+		prompt("Enter customer name:"); customerName = scan.nextLine();
 		prompt("Enter customer email:"); customerEmail = scan.next();
 		prompt("Enter customer dob(YYYY-MM-DD):"); customerDOB = scan.next();
 		prompt("Enter customer phone:"); customerPhone = scan.next();
@@ -837,7 +759,7 @@ public class Application {
 		//prompt("enter room number"); int roomNumber = this.scan.nextInt();
 		prompt("please enter the staff id");
 		int staffid = this.scan.nextInt();
-		String sql = "delete * from STAFF where StaffID=?";
+		String sql = "delete from STAFF where StaffID=?";
 		PreparedStatement ps = this.connection.prepareStatement(sql);
 		ps.setInt(1, staffid);		
 		ps.executeQuery();	
@@ -966,7 +888,7 @@ public class Application {
 		prompt("enter room number"); int roomNumber = this.scan.nextInt();
 		prompt("please enter the hotel id");
 		int hotelid = this.scan.nextInt();
-		String sql = "delete  from HOTEL where HotelID=? and RoomNumber=?";
+		String sql = "delete  from ROOM where HotelID=? and RoomNumber=?";
 		PreparedStatement ps = this.connection.prepareStatement(sql);
 		ps.setInt(1, hotelid);
 		ps.setInt(2, roomNumber);
@@ -983,8 +905,8 @@ public class Application {
 		prompt("enter room number");
 		int roomNumber = scan.nextInt();
 		prompt("please select the field to be updated");
-		prompt("1. max Occupancy 2.rate 3.availability 4.service desc 5.category");
-		String sql = "select * from Hotel where HotelID=? and RoomNumber=?";
+		prompt("1. service desc 2.max occupancy 3.category 4.availability 5.rate");
+		String sql = "select * from ROOM where HotelID=? and RoomNumber=?";
 		PreparedStatement ps = connection.prepareStatement(sql);
 		ps.setInt(1, hotelid);
 		ps.setInt(2, roomNumber);
@@ -1263,7 +1185,7 @@ public class Application {
 			e.printStackTrace();
 		}	
 		
-		prompt("now you need to add this manager to staff table");
+		prompt("now you need to  manager to staff table");
 		addStaff();
 		adminHandler();
 
@@ -1296,20 +1218,15 @@ public class Application {
 		// TODO Auto-generated method stub
 		if(choice==1) {
 			//check for valid admin
-			String admin_sql = "SELECT * FROM Admin WHERE adminID = ? AND password = ?";
+			String admin_sql = "SELECT * FROM ADMIN WHERE adminID = ? AND password = ?";
 			Boolean isAdmin = this.isUser(admin_sql, userName, userPassword);
 	        if (isAdmin)
 	            return 1;
-		} else {
-			//check for valid staff
-			String staff_sql = "SELECT * FROM professor WHERE userid = ? AND password = ?";
-			Boolean isStaff = this.isUser(staff_sql, userName, userPassword);
-	        if (isStaff)
-	            return 2;
-		}
+		} 
 		// else return -1 for incorrect credentials
 		return -1;
 	}
+	
 	
 	public Boolean isUser(String sql, String userName, String userPassword) throws SQLException {
         this.getConnection();
@@ -1367,7 +1284,7 @@ public class Application {
 		// TODO Auto-generated method stub
 		prompt("1.Create Hotel 2.Get hotel info 3. update hotel 4.delete hotel");
 		prompt("5.Create room  6. update room 7.delete room");
-		prompt("8.Create staff 9.update staff 10.delete staff 11. get staff who served 12. get staff by dept 13. get staff");
+		prompt("8.Create staff 9.update staff 10.delete staff 11. get staff who served 12. get staff by dept");
 		prompt("14.Create service 15.update service info 16.delete service");
 		prompt("17.Check room availability 18.checkout room ");
 		prompt("19.Create customer 20. get customer info 21.update customer 22.delete customer");
@@ -1509,7 +1426,13 @@ public class Application {
 					
 					
 			}
-			
+			prompt("do u want to perform any other operation? Enter y or n");
+			String more = this.scan.next();
+			if(more.equalsIgnoreCase("y")) {
+				adminHandler();
+			} else {
+				prompt("bye!");
+			}
 		}
 
 
@@ -1755,46 +1678,213 @@ public class Application {
 		prompt("Enter room number"); roomNumber = scan.nextInt();
 		
 		
-		DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate dstartDate = LocalDate.parse(startDate,dtFormatter);
-		LocalDate dendDate = LocalDate.parse(endDate,dtFormatter);
-		long numberOfDays = ChronoUnit.DAYS.between(dstartDate, dendDate);
-		String sql1 = "INSERT into BOOKING (GuestNumber, StartDate, EndDate, CheckInTime,CheckOutTime, CustomerEmail, HotelID, RoomNumber) values (?,?,?,?,?,?,?,?)";
 		try {
-			PreparedStatement ps1 = this.connection.prepareStatement(sql1);			
-			ps1.setInt(1, guestNumber);
-			ps1.setString(2, startDate);
-			ps1.setString(3, endDate);
-			ps1.setString(4, checkinTime);
-			ps1.setString(5, checkoutTime);
-			ps1.setString(6, customerEmail);
-			ps1.setInt(7, hotelid);
-			ps1.setInt(8, roomNumber);			
-			ps1.executeQuery();
-			
-		} catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-		}
-		int bookingid;
-		try {
-			String sql2="select max(BookingID) from BOOKING";
-			bookingid=0;
-			PreparedStatement ps2=connection.prepareStatement(sql2);
-			ResultSet rs2 = ps2.executeQuery();
-			if(rs2.next()) {
-				bookingid = rs2.getInt(1);
+			DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			LocalDate dstartDate = LocalDate.parse(startDate,dtFormatter);
+			LocalDate dendDate = LocalDate.parse(endDate,dtFormatter);
+			long numberOfDays = ChronoUnit.DAYS.between(dstartDate, dendDate)+1;
+			connection.setAutoCommit(false);
+			boolean flag1=false, flag2 = false;
+			String sql1 = "INSERT into BOOKING (GuestNumber, StartDate, EndDate, CheckInTime,CheckOutTime, CustomerEmail, HotelID, RoomNumber) values (?,?,?,?,?,?,?,?)";
+			try {
+				PreparedStatement ps1 = this.connection.prepareStatement(sql1);			
+				ps1.setInt(1, guestNumber);
+				ps1.setString(2, startDate);
+				ps1.setString(3, endDate);
+				ps1.setString(4, checkinTime);
+				ps1.setString(5, checkoutTime);
+				ps1.setString(6, customerEmail);
+				ps1.setInt(7, hotelid);
+				ps1.setInt(8, roomNumber);			
+				ps1.executeQuery();
+				flag1 = true;
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
 			}
-			initBill(bookingid,hotelid,roomNumber,numberOfDays);
+			int bookingid;
+			try {
+				String sql2="select max(BookingID) from BOOKING";
+				bookingid=0;
+				PreparedStatement ps2=connection.prepareStatement(sql2);
+				ResultSet rs2 = ps2.executeQuery();
+				if(rs2.next()) {
+					bookingid = rs2.getInt(1);
+				}
+				initBill(bookingid,hotelid,roomNumber,numberOfDays);
+				flag2=true;
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();;
+			}
+			
+			if(flag1 && flag2 ) {
+				connection.commit();
+				prompt("booking is created successfully");
+			} else {
+				
+				connection.rollback();
+				prompt("booking not successful");
+			}
+			connection.setAutoCommit(true);
 		} catch (Exception e) {
 			// TODO: handle exception
-			e.printStackTrace();;
+			if(connection !=null){
+				try{
+					connection.rollback();
+					connection.setAutoCommit(true);
+				}
+				catch (Exception e1) {
+					// TODO: handle exception
+					e1.printStackTrace();
+				}
+			}
 		}
 		
 		
 		
 		//handle presidential staff assignment
+		// handled in checkinRoom
 		
+		
+	}
+
+
+	public void checkoutRoom() throws SQLException{
+		// TODO Auto-generated method stub
+		prompt("enter booking id");
+		int bookingid=this.scan.nextInt();
+		boolean f1=false,f3=false,f5=false,f6=false,f7=false;
+		try {
+			connection.setAutoCommit(false);
+			try {
+				String sql1="update BOOKING set CheckoutTime=? where BookingID=?";
+				Calendar cal = Calendar.getInstance();
+			    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+			    //System.out.println( sdf.format(cal.getTime()) );//checkout time
+				PreparedStatement ps1 = this.connection.prepareStatement(sql1);
+				ps1.setString(1, sdf.format(cal.getTime()));
+				ps1.setInt(2, bookingid);
+				ps1.executeQuery();
+				f1=true;
+			} catch (Exception e1) {
+				// TODO: handle exception
+				e1.printStackTrace();
+			}
+			
+			
+			String sql2="SELECT HotelID, RoomNumber from BOOKING where BookingID=?";
+			PreparedStatement ps2 = this.connection.prepareStatement(sql2);
+			ps2.setInt(1, bookingid);
+			ResultSet rs=ps2.executeQuery();
+			int hotelid=0, roomNumber=0;
+			if(rs.next()){
+				hotelid=rs.getInt(1);roomNumber=rs.getInt(2);
+			}
+			
+			try {
+				String sql3="update ROOM set Availability=? where HotelID=? and RoomNumber=?";//room status change
+				PreparedStatement ps3=this.connection.prepareStatement(sql3);
+				ps3.setBoolean(1, true);
+				ps3.setInt(2, hotelid);
+				ps3.setInt(3, roomNumber);
+				ps3.executeQuery();
+				f3=true;
+			} catch (Exception e3) {
+				// TODO: handle exception
+				e3.printStackTrace();
+			}
+			
+			
+			
+			String sql4="SELECT Category from ROOM where RoomNumber=? and HotelID=?";//find room type
+			PreparedStatement ps4=this.connection.prepareStatement(sql4);
+			ps4.setInt(1, roomNumber);
+			ps4.setInt(2, hotelid);		
+			ResultSet rs4=ps4.executeQuery();		
+			String roomType="";
+			if(rs.next()){
+				roomType=rs.getString(1);
+				
+			}
+			
+			String sql5 = "select RoomServiceStaffID, CleanerStaffID from PRESIDENTIAL_ROOM where HotelID=? and RoomNumber=?"; //update staff to be available
+			PreparedStatement ps5= this.connection.prepareStatement(sql5);
+			ps5.setInt(1, hotelid);
+			ps5.setInt(2, roomNumber);
+			ResultSet rs5 = ps5.executeQuery();
+			try {
+				while(rs5.next()) {
+					int sid=rs5.getInt(1),sid2=rs5.getInt(2);
+					String sql5i ="update STAFF set Availability=? where StaffID=?";
+					PreparedStatement ps5i=connection.prepareStatement(sql5i);
+					//PreparedStatement ps5ii=connection.prepareStatement(sql5i);
+					ps5i.setBoolean(1, true);
+					ps5i.setInt(2, sid);
+					ps5i.executeQuery();
+					ps5i.setInt(2, sid2);
+					ps5i.executeQuery();
+				}
+				f5=true;
+			} catch (Exception e5) {
+				// TODO: handle exception
+				e5.printStackTrace();
+			}
+			
+			
+			
+			try {
+				if(roomType.equalsIgnoreCase("Presidential Suite")){
+					String sql6="update PRESIDENTIAL_ROOM set RoomServiceStaffID=? and CleanerStaffID=? where HotelID=? and RoomNumber=?"; //presidential staff isavailable status flag, cleaner, roomserviceid set null
+					PreparedStatement ps6=connection.prepareStatement(sql6);
+					ps6.setNull(1, Types.INTEGER);
+					ps6.setNull(2, Types.INTEGER);
+					ps6.setInt(3, hotelid);
+					ps6.setInt(4, roomNumber);
+					ps6.executeQuery();			
+				}
+				f6=true;
+			} catch (Exception e6) {
+				// TODO: handle exception
+				e6.printStackTrace();
+			}
+					
+			
+			try {
+				generateBill(bookingid);
+				f7=true;
+			} catch (Exception e7) {
+				// TODO: handle exception
+				e7.printStackTrace();
+			}
+			
+			if (f1 && f3 && f5 && f6 && f7){
+				connection.commit();
+				prompt("");
+				prompt("Checkout and Bill is generated!");
+			}
+			else{
+				connection.rollback();
+				prompt("");
+				prompt("Some error occured!");
+			}
+			connection.setAutoCommit(true);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			if(connection != null){
+				try{
+					connection.rollback();
+					connection.setAutoCommit(true);
+				}
+				catch (Exception e1) {
+					// TODO: handle exception
+					e1.printStackTrace();
+				}
+			}
+		}
 		
 	}
 
