@@ -779,7 +779,8 @@ public class Application {
 			break;
 		case 2: 
 			prompt("enter service name:");
-			String serviceName = scan.next();
+			scan.nextLine();
+			String serviceName = scan.nextLine();
 			updateServiceHelper(serviceid, costfetched, serviceName, hotelid);
 			break;
 			
@@ -897,7 +898,8 @@ public class Application {
 			break;
 		case 2: 
 			prompt("enter name:");
-			String name = scan.next();
+			scan.nextLine();
+			String name = scan.nextLine();
 			updateStaffHelper(staffid, hotelidfetched, name, agefetched, addressfetched, phonefetched,availabilityfetched, deptfetched, isActivefetched);
 			break;
 		case 3:
@@ -907,7 +909,8 @@ public class Application {
 			break;
 		case 4: 
 			prompt("enter address:");
-			String address = scan.next();
+			scan.nextLine();
+			String address = scan.nextLine();
 			updateStaffHelper(staffid, hotelidfetched, namefetched, agefetched, address, phonefetched,availabilityfetched, deptfetched, isActivefetched);
 			break;
 		case 5: 
@@ -1012,7 +1015,8 @@ public class Application {
 			break;
 		case 3:
 			prompt("enter category");
-			String category = scan.next();
+			scan.nextLine();
+			String category = scan.nextLine();
 			updateRoomHelper(roomNumber, hotelid, serviceDescfetched, maxOccupancyfetched, category, availabilityfetched, ratefetched);			
 			break;
 		case 4: 
@@ -1047,9 +1051,11 @@ public class Application {
 		String serviceDesc, category;
 		prompt("Enter room number"); roomNumber = this.scan.nextInt();
 		prompt("Enter hotelID"); hotelid = this.scan.nextInt();
+		this.scan.nextLine();
 		prompt("enter service desc"); serviceDesc = this.scan.nextLine();
 		prompt("enter max occupancy"); maxOccupancy = this.scan.nextInt();
-		prompt("Enter category"); category = scan.next();
+		this.scan.nextLine();
+		prompt("Enter category"); category = scan.nextLine();
 		prompt("Enter availability"); availability = scan.nextBoolean();
 		prompt("Enter rate"); rate = scan.nextInt();
 		//prompt("Enter address"); address = scan.next();
@@ -1079,8 +1085,12 @@ public class Application {
 		}		
 		
 		
-		if(category.equalsIgnoreCase("PREDIDENTIAL SUITE")) {
-			
+		if(category.equalsIgnoreCase("PRESIDENTIAL SUITE")) {
+			String sql1="insert into PRESIDENTIAL_ROOM  (RoomNumber, HotelID) values (?,?)";
+			PreparedStatement ps1 = connection.prepareStatement(sql1);
+			ps1.setInt(1, roomNumber);
+			ps1.setInt(2, hotelid);
+			ps1.executeQuery();
 		}
 	}
 
@@ -1144,12 +1154,14 @@ public class Application {
 			break;
 		case 2: 
 			prompt("enter name");
-			String name = scan.next();
+			scan.nextLine();
+			String name = scan.nextLine();
 			updateHotelHelper(hotelid, manageridfetched, name, addressfetched, cityfetched, statefetched, emailfetched, phonefetched);
 			break;
 		case 3:
 			prompt("enter address");
-			String address = scan.next();
+			scan.nextLine();
+			String address = scan.nextLine();
 			updateHotelHelper(hotelid, manageridfetched, namefetched, address, cityfetched, statefetched, emailfetched, phonefetched);			
 			break;
 		case 4: 
@@ -1159,7 +1171,8 @@ public class Application {
 			break;
 		case 5: 
 			prompt("enter state");
-			String state = scan.next();
+			scan.nextLine();
+			String state = scan.nextLine();
 			updateHotelHelper(hotelid, manageridfetched, namefetched, addressfetched, cityfetched, state, emailfetched, phonefetched);
 			break;
 		case 6: 
@@ -1190,9 +1203,11 @@ public class Application {
 		boolean availability,isactive;
 		
 		prompt("Enter hotelID"); hotelid = scan.nextInt();
-		prompt("Enter name"); name = scan.next();
+		scan.nextLine();
+		prompt("Enter name"); name = scan.nextLine();
 		prompt("Enter age"); age = scan.nextInt();
-		prompt("Enter address"); address = scan.next();
+		scan.nextLine();
+		prompt("Enter address"); address = scan.nextLine();
 		prompt("Enter phone"); phone = scan.next();
 		prompt("Enter availability"); availability = scan.nextBoolean();
 		prompt("Enter dept"); dept = scan.next();
@@ -1224,11 +1239,12 @@ public class Application {
 		String name, address, city, state, email, phone;
 		//int  managerid=(Integer) null;		
 		//check if this manager id is already present in staff table		
-		
-		prompt("Enter name"); name = scan.next();
-		prompt("Enter address"); address = scan.next();
+		scan.nextLine();
+		prompt("Enter name"); name = scan.nextLine();
+		prompt("Enter address"); address = scan.nextLine();
 		prompt("Enter city"); city = scan.next();
-		prompt("Enter state"); state = scan.next();
+		scan.nextLine();
+		prompt("Enter state"); state = scan.nextLine();
 		prompt("Enter email"); email = scan.next();
 		prompt("Enter phone"); phone = scan.next();
 		String sql = "INSERT into HOTEL(Name,Address,City,State,Email,Phone) values (?,?,?,?,?,?)";
@@ -1450,7 +1466,7 @@ public class Application {
 					deleteBooking();
 					break;
 //				case 26:
-//					
+//					generateBill()	
 				case 27:
 					getRevenueByDateRange();
 					break;
