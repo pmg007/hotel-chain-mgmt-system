@@ -160,7 +160,6 @@ public class Application {
 			PreparedStatement ps=connection.prepareStatement(sql);
 			//ps.setInt(1, 0);
 			ps.setString(1, date.toString());
-			prompt(date.toString());
 			ps.setString(2,date.toString());
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
@@ -780,7 +779,6 @@ public class Application {
 		ps2.setInt(1, staffid);
 		ResultSet rs = ps2.executeQuery();
 		if(rs.next()){
-			System.out.println("hello");
 			int hotelidfetched = rs.getInt(1);
 			String sql1 = "update HOTEL set ManagerID =? where HotelID=?";
 			PreparedStatement ps1 = connection.prepareStatement(sql1);
@@ -1530,17 +1528,17 @@ public class Application {
 		while(rs1.next()){
 			prompt("staff id: "+rs1.getInt(1)+" name: "+rs1.getString(2));
 		}
-		int serviceStaffid, cleanerStaffid;
+		int serviceStaffid, cateringStaffid;
 		prompt("enter serice staff id");
 		serviceStaffid = this.scan.nextInt();
 		prompt("enter cleaner staff id");
-		cleanerStaffid = this.scan.nextInt();
+		cateringStaffid = this.scan.nextInt();
 		
 		
-		String sql2 = "update PRESIDENTIAL_ROOM set  RoomServiceStaffID=? and CleanerStaffID=?  ";
+		String sql2 = "update PRESIDENTIAL_ROOM set  RoomServiceStaffID=? and CateringStaffID=?  ";
 		PreparedStatement ps2 = connection.prepareStatement(sql2);
 		ps2.setInt(1, serviceStaffid);
-		ps2.setInt(2, cleanerStaffid);
+		ps2.setInt(2, cateringStaffid);
 		ps2.executeUpdate();
 		
 		
@@ -1548,7 +1546,7 @@ public class Application {
 		try {
 			PreparedStatement ps = this.connection.prepareStatement(sql);			
 			ps.setInt(1, serviceStaffid );
-			ps.setInt(2, cleanerStaffid);
+			ps.setInt(2, cateringStaffid);
 			ps.setInt(3, 000);
 			ps.setInt(4, hotelid);		
 			ps.executeUpdate();
@@ -1849,7 +1847,7 @@ public class Application {
 				
 			}
 			
-			String sql5 = "select RoomServiceStaffID, CleanerStaffID from PRESIDENTIAL_ROOM where HotelID=? and RoomNumber=?"; //update staff to be available
+			String sql5 = "select RoomServiceStaffID, CateringStaffID from PRESIDENTIAL_ROOM where HotelID=? and RoomNumber=?"; //update staff to be available
 			PreparedStatement ps5= this.connection.prepareStatement(sql5);
 			ps5.setInt(1, hotelid);
 			ps5.setInt(2, roomNumber);
@@ -1876,7 +1874,7 @@ public class Application {
 			
 			try {
 				if(roomType.equalsIgnoreCase("Presidential Suite")){
-					String sql6="update PRESIDENTIAL_ROOM set RoomServiceStaffID=? and CleanerStaffID=? where HotelID=? and RoomNumber=?"; //presidential staff isavailable status flag, cleaner, roomserviceid set null
+					String sql6="update PRESIDENTIAL_ROOM set RoomServiceStaffID=? and CateringStaffID=? where HotelID=? and RoomNumber=?"; //presidential staff isavailable status flag, cleaner, roomserviceid set null
 					PreparedStatement ps6=connection.prepareStatement(sql6);
 					ps6.setNull(1, Types.INTEGER);
 					ps6.setNull(2, Types.INTEGER);
@@ -1933,7 +1931,7 @@ public class Application {
 		// TODO Auto-generated method stub
 		Scanner scan = new Scanner(System.in);
         Application app = new Application(scan);
-        System.out.println("1.Admin Login 2.Staff Login  3.Exit");
+        System.out.println("1.Admin Login 2.exit");
         int choice = scan.nextInt();
         switch (choice) {
         case 1:
@@ -1943,14 +1941,8 @@ public class Application {
                 app.prompt(e.toString());
             }
             break;
+            
         case 2:
-            try {
-                app.start(choice);
-            } catch (SQLException e) {
-                app.prompt(e.toString());
-            }
-            break;
-        case 3:
             return;
         default:
             app.prompt("Invalid Input");
