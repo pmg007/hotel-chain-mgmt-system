@@ -11,12 +11,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.TimeUnit;
-
 
 
 public class Application {
@@ -73,10 +68,6 @@ public class Application {
 				this.prompt("hello admin"); 
 				this.adminHandler();
 				break;
-			case 2: 
-				this.prompt("hello staff");
-				this.staffHandler();
-				break;
 			default: 
 				this.prompt("Something went wrong");
 				this.start(choice);
@@ -89,20 +80,20 @@ public class Application {
 	
 	
 	
-	public void staffHandler() throws SQLException{
-		// TODO Auto-generated method stub
-		int choice  = this.viewStaffOptions();
-		switch(choice) {
-			
-		}
-		
-	}
+//	public void staffHandler() throws SQLException{
+//		// TODO Auto-generated method stub
+//		int choice  = this.viewStaffOptions();
+//		switch(choice) {
+//			
+//		}
+//		
+//	}
 
 
-	public int viewStaffOptions() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+//	public int viewStaffOptions() {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
 
 
 	public void deleteBooking() throws SQLException{
@@ -155,7 +146,27 @@ public class Application {
 
 	public void reportOccupancyByDateRange() throws SQLException{
 		// TODO Auto-generated method stub
-		
+		prompt("enter start date");
+		prompt("enter end date");
+		String startDate=this.scan.next(), endDate=this.scan.next();
+		DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate dstartDate = LocalDate.parse(startDate,dtFormatter);
+		LocalDate dendDate = LocalDate.parse(endDate,dtFormatter); 
+		dendDate = dendDate.plusDays(1);
+		prompt("Date  \t Occupancy totalRooms \n");
+		for(LocalDate date = dstartDate;date.isBefore(dendDate);date=date.plusDays(1)) {
+			int occupancy, totalRooms;
+			String sql="SELECT o.Occupancy, t.TotalRooms, CASE 	WHEN o.Occupancy IS NULL THEN 0	ELSE o.Occupancy/t.TotalRooms*100   END AS TotalOccupancy FROM ( SELECT COUNT(BookingID) AS Occupancy FROM BOOKING WHERE StartDate<=? AND EndDate>=?) o, (SELECT COUNT(RoomNumber) AS TotalRooms FROM ROOM) t";
+			PreparedStatement ps=connection.prepareStatement(sql);
+			//ps.setInt(1, 0);
+			ps.setString(1, date.toString());
+			prompt(date.toString());
+			ps.setString(2,date.toString());
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				prompt(date.toString()+"\t"+rs.getInt(1)+"\t"+rs.getInt(2));
+			}
+		}	
 		
 	}
 
@@ -376,6 +387,7 @@ public class Application {
 			break;
 
 		default:
+			prompt("invalid option");
 			break;
 		}
 		
@@ -1159,6 +1171,7 @@ public class Application {
 	public void addHotel() throws SQLException, ParseException {
 		// TODO Auto-generated method stub
 		String name, address, city, state, email, phone;
+		int hotelID=0;
 		//int  managerid=(Integer) null;		
 		//check if this manager id is already present in staff table		
 		scan.nextLine();
@@ -1184,13 +1197,40 @@ public class Application {
 			// TODO: handle exception
 			e.printStackTrace();
 		}	
-		
+		try{
+			String sql1 = "SELECT MAX(HotelID) FROM HOTEL";
+			PreparedStatement ps1 = connection.prepareStatement(sql1);
+			ResultSet rs = ps1.executeQuery();
+			if(rs.next()){
+				hotelID = rs.getInt(1);
+				prompt("Hotel ID of added Hotel is : " + hotelID);
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 		prompt("now you need to add manager to staff table");
 		addStaff();
+		try{
+			int managerID=0;
+			String sql2 = "SELECT MAX(StaffID) FROM STAFF";
+			PreparedStatement ps2 = connection.prepareStatement(sql2);
+			ResultSet rs2 = ps2.executeQuery();
+			if(rs2.next()){
+				managerID = rs2.getInt(1);
+			}
+			String sql3 = "UPDATE HOTEL SET ManagerID=? WHERE HotelID=?";
+			PreparedStatement ps3 = connection.prepareStatement(sql3);
+			ps3.setInt(1, managerID);
+			ps3.setInt(2, hotelID);
+			ps3.executeUpdate();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+		
 		adminHandler();
 
-	}
-	
+	}	
 	
 
 
