@@ -226,7 +226,7 @@ public class Application {
 		ps1.setLong(4, ssn);
 		ps1.setDouble(5, totalAmount);
 		ps1.setInt(6, bookingid);
-		ps1.executeQuery();		
+		ps1.executeUpdate();		
 	}
 
 
@@ -278,7 +278,7 @@ public class Application {
 		ps.setInt(1, receptingStaffid);
 		ps.setInt(2, serviceStaffid);
 		ps.setInt(3, serviceNumber);
-		ps.executeQuery();		
+		ps.executeUpdate();		
 		
 	}
 
@@ -314,7 +314,7 @@ public class Application {
 			ps.setInt(2, receptingStaffid);
 			ps.setInt(3, serviceid);
 			ps.setInt(4, hotelid);		
-			ps.executeQuery();
+			ps.executeUpdate();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -334,7 +334,7 @@ public class Application {
 		PreparedStatement ps1 = connection.prepareStatement(sql1);
 		ps1.setInt(1, serviceNumber);
 		ps1.setInt(2, bookingid);
-		ps1.executeQuery();
+		ps1.executeUpdate();
 	}
 
 
@@ -372,7 +372,7 @@ public class Application {
 			PreparedStatement ps3 = connection.prepareStatement(sql3);
 			ps3.setInt(1, managerid);
 			ps3.setInt(2, hotelid);	
-			ps3.executeQuery();
+			ps3.executeUpdate();
 			break;
 
 		default:
@@ -584,7 +584,7 @@ public class Application {
 		ps.setString(3,  customerDOB);
 		ps.setString(4, customerPhone);	
 		ps.setString(5, customerEmail);
-		ps.executeQuery();		
+		ps.executeUpdate();		
 		String sql2 = "select * from CUSTOMER where Email =? or Phone=?";
 		PreparedStatement ps2 =connection.prepareStatement(sql2);
 		ps2.setString(1, customerEmail);
@@ -597,7 +597,7 @@ public class Application {
 			PreparedStatement ps1 = connection.prepareStatement(sql1);
 			ps1.setString(1, customerEmail );
 			ps1.setString(2, phonefetched);
-			ps1.executeQuery();			
+			ps1.executeUpdate();			
 		}
 	}
 
@@ -646,7 +646,7 @@ public class Application {
 			ps.setString(2, customerEmail);
 			ps.setString(3, customerDOB);
 			ps.setString(4, customerPhone);		
-			ps.executeQuery();
+			ps.executeUpdate();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -725,7 +725,7 @@ public class Application {
 		ps.setInt(4, hotelid);	
 		ps.setInt(5, serviceid);
 		ps.setInt(6, hotelid);
-		ps.executeQuery();		
+		ps.executeUpdate();		
 	}
 
 
@@ -744,7 +744,7 @@ public class Application {
 			ps.setInt(2, cost);
 			ps.setString(3, serviceName);
 			ps.setInt(4, hotelid);		
-			ps.executeQuery();
+			ps.executeUpdate();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -774,7 +774,7 @@ public class Application {
 			PreparedStatement ps1 = connection.prepareStatement(sql1);
 			ps1.setNull(1, Types.INTEGER);
 			ps1.setInt(2, hotelidfetched);
-			ps1.executeQuery();		
+			ps1.executeUpdate();		
 		}
 			
 	}
@@ -879,7 +879,7 @@ public class Application {
 		ps.setString(7, dept);
 		ps.setBoolean(8, isActive);
 		ps.setInt(9, staffid);
-		ps.executeQuery();		
+		ps.executeUpdate();		
 	}
 
 
@@ -1000,7 +1000,7 @@ public class Application {
 			ps.setString(5, category);
 			ps.setBoolean(6, availability);
 			ps.setInt(7, rate);
-			ps.executeQuery();
+			ps.executeUpdate();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -1012,7 +1012,7 @@ public class Application {
 			PreparedStatement ps1 = connection.prepareStatement(sql1);
 			ps1.setInt(1, roomNumber);
 			ps1.setInt(2, hotelid);
-			ps1.executeQuery();
+			ps1.executeUpdate();
 		}
 	}
 
@@ -1148,7 +1148,7 @@ public class Application {
 			ps.setString(7, dept);
 			ps.setBoolean(8, isactive);
 			ps.setString(9, password);			
-			ps.executeQuery();
+			ps.executeUpdate();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -1179,13 +1179,13 @@ public class Application {
 			ps.setString(4, state);
 			ps.setString(5, email);
 			ps.setString(6, phone);
-			ps.executeQuery();
+			ps.executeUpdate();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}	
 		
-		prompt("now you need to  manager to staff table");
+		prompt("now you need to add manager to staff table");
 		addStaff();
 		adminHandler();
 
@@ -1259,7 +1259,7 @@ public class Application {
 		ps.setString(6, email);
 		ps.setString(7, phone);		 
 		ps.setInt(8, hotelid);
-		ps.executeQuery();
+		ps.executeUpdate();
 	 }
 
 
@@ -1276,7 +1276,7 @@ public class Application {
 		ps.setInt(5, rate);
 		ps.setInt(6, hotelid);
 		ps.setInt(7, roomNumber);			
-		ps.executeQuery();
+		ps.executeUpdate();
 	}
 
 
@@ -1459,7 +1459,7 @@ public class Application {
 		ps2.setInt(2, hotelid);
 		ps2.setInt(3, roomNumber);
 		
-		ps2.executeQuery();
+		ps2.executeUpdate();
 		
 		
 		String sql3 = "SELECT Category from ROOM where HotelID=? and RoomNumber=?";
@@ -1501,7 +1501,7 @@ public class Application {
 		PreparedStatement ps2 = connection.prepareStatement(sql2);
 		ps2.setInt(1, serviceStaffid);
 		ps2.setInt(2, cleanerStaffid);
-		ps2.executeQuery();
+		ps2.executeUpdate();
 		
 		
 		String sql = "INSERT into SERVICE_REQUESTED (ServiceStaffID,ReceptingStaffid,ServiceID, HotelID) values (?,?,?,?)";
@@ -1511,7 +1511,7 @@ public class Application {
 			ps.setInt(2, cleanerStaffid);
 			ps.setInt(3, 000);
 			ps.setInt(4, hotelid);		
-			ps.executeQuery();
+			ps.executeUpdate();
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -1531,7 +1531,7 @@ public class Application {
 		PreparedStatement ps123 = connection.prepareStatement(sql123);
 		ps123.setInt(1, serviceNumber);
 		ps123.setInt(2, bookingid);
-		ps123.executeQuery();
+		ps123.executeUpdate();
 		
 	}
 
@@ -1627,7 +1627,7 @@ public class Application {
 		PreparedStatement ps6 = connection.prepareStatement(sql6);
 		ps6.setDouble(1, totalAmount);
 		ps6.setInt(2, bookingid);
-		ps6.executeQuery();
+		ps6.executeUpdate();
 	}
 
 
@@ -1696,7 +1696,7 @@ public class Application {
 				ps1.setString(6, customerEmail);
 				ps1.setInt(7, hotelid);
 				ps1.setInt(8, roomNumber);			
-				ps1.executeQuery();
+				ps1.executeUpdate();
 				flag1 = true;
 				
 			} catch (Exception e) {
@@ -1766,7 +1766,7 @@ public class Application {
 				PreparedStatement ps1 = this.connection.prepareStatement(sql1);
 				ps1.setString(1, sdf.format(cal.getTime()));
 				ps1.setInt(2, bookingid);
-				ps1.executeQuery();
+				ps1.executeUpdate();
 				f1=true;
 			} catch (Exception e1) {
 				// TODO: handle exception
@@ -1789,7 +1789,7 @@ public class Application {
 				ps3.setBoolean(1, true);
 				ps3.setInt(2, hotelid);
 				ps3.setInt(3, roomNumber);
-				ps3.executeQuery();
+				ps3.executeUpdate();
 				f3=true;
 			} catch (Exception e3) {
 				// TODO: handle exception
@@ -1822,9 +1822,9 @@ public class Application {
 					//PreparedStatement ps5ii=connection.prepareStatement(sql5i);
 					ps5i.setBoolean(1, true);
 					ps5i.setInt(2, sid);
-					ps5i.executeQuery();
+					ps5i.executeUpdate();
 					ps5i.setInt(2, sid2);
-					ps5i.executeQuery();
+					ps5i.executeUpdate();
 				}
 				f5=true;
 			} catch (Exception e5) {
@@ -1842,7 +1842,7 @@ public class Application {
 					ps6.setNull(2, Types.INTEGER);
 					ps6.setInt(3, hotelid);
 					ps6.setInt(4, roomNumber);
-					ps6.executeQuery();			
+					ps6.executeUpdate();			
 				}
 				f6=true;
 			} catch (Exception e6) {
