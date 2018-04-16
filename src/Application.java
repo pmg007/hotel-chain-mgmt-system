@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class Application {
 	
 	Connection connection;
-	String jdbcURL = "jdbc:mysql://localhost:3306/wolfinns";
+	String jdbcURL = "jdbc:mariadb://localhost:3307/wolfinns";
 	String vclUserID = "root";
 	String vclPassword = "root";
 	Scanner scan;
@@ -41,7 +41,7 @@ public class Application {
 	        if (this.connection != null)
 	            return;
 	        try {
-	            Class.forName("com.mysql.jdbc.Driver");
+	            Class.forName("org.mariadb.jdbc.Driver");
 	        } catch (ClassNotFoundException e) {
 	            System.out.println("Network Issues");
 	            e.printStackTrace();
