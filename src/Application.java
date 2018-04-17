@@ -268,7 +268,7 @@ public class Application {
 				
 	}
 
-	// this is the helper function for pdateServiceRequested
+	// this is the helper function for updateServiceRequested
 	public void updateServiceRequestedHelper(int serviceNumber, int receptingStaffid, int serviceStaffid) throws SQLException {
 		// TODO Auto-generated method stub
 		String sql = "update SERVICE_REQUESTED set ReceptingStaffID=?, ServiceStaffID=? where ServiceNumber=? ";
@@ -1292,7 +1292,7 @@ public class Application {
 
 	
 
-	// helper function update
+	// helper function update hotel
 	public void updateHotelHelper(int hotelid,int managerid, String name, String address, String city, String state, String email, String phone) throws SQLException {
 		String sql = "update HOTEL SET ManagerID=?, Name=?, Address=?, City=?, State=?, Email=?, Phone=? where HotelID=?";
 		PreparedStatement ps = this.connection.prepareStatement(sql);
@@ -1310,7 +1310,7 @@ public class Application {
 
 
 
-
+	// helper function to update room
 	public void updateRoomHelper(int roomNumber, int hotelid, String serviceDesc, int maxOccupancy, String category, Boolean availability, int rate) throws SQLException{		
 		String sql = "update ROOM SET ServiceDesc=?, MaxOccupancy=?, Category=?, Availability=?, Rate=? where HotelID=? and RoomNumber=?";
 		PreparedStatement ps = this.connection.prepareStatement(sql);
@@ -1324,7 +1324,7 @@ public class Application {
 		ps.executeUpdate();
 	}
 
-
+	 // function to show all the available options when admin logs in 
 	public int viewAdminOptions() {
 		// TODO Auto-generated method stub
 		prompt("1.Create Hotel 2.Get hotel info 3. update hotel 4.delete hotel");
@@ -1346,7 +1346,7 @@ public class Application {
 		return option;
 	}
 
-
+	// this function executes according to the choice made by the admin
 	public void adminHandler() throws SQLException, ParseException{
 			// TODO Auto-generated method stub
 			int choice  = this.viewAdminOptions();
@@ -1480,7 +1480,8 @@ public class Application {
 			}
 		}
 
-
+	// function to checkin the customer
+	// special care has been taken if the booking is for presidential, if yes then the roomservicestaff and catering staff have been assigned by calling appropriate function
 	public void checkInRoom() throws SQLException{
 		// TODO Auto-generated method stub
 		//take booking id
@@ -1522,7 +1523,7 @@ public class Application {
 		
 	}
 
-
+	// function to assign service and catering to presidential room's booking upon checkin and also make changes in other required tables
 	public void assignStaffToPresidential(int bookingid, int hotelid, int roomNumber) throws SQLException{
 		// TODO Auto-generated method stub
 //		
@@ -1580,7 +1581,7 @@ public class Application {
 		
 	}
 
-
+	// function to generate bill, itemized receipt, get total amount including room's cost and services cost
 	public void generateBill(int bookingid) throws SQLException{
 		// TODO Auto-generated method stub
 		String sql1 = "select * from BOOKING where BookingID=?";
@@ -1675,7 +1676,7 @@ public class Application {
 		ps6.executeUpdate();
 	}
 
-
+	// function to find out the percentage of room occupied in a particular hotel at present time
 	public void getPercentageOfRoomOccupied() throws SQLException{
 		// TODO Auto-generated method stub
 		String sql = "SELECT t.HotelID, o.Occupied, t.TotalRooms, o.Occupied/t.TotalRooms*100 AS Percentage_of_room_occupied FROM (SELECT  COUNT(roomNumber)   AS Occupied, HotelID FROM room WHERE Availability=0  GROUP BY HotelID) o RIGHT OUTER JOIN (SELECT COUNT(roomNumber) AS TotalRooms, HotelID FROM room GROUP BY HotelID) t  ON o.HotelID=t.HotelID;";
@@ -1686,7 +1687,7 @@ public class Application {
 		}		
 	}
 
-
+	//  function to get guests in each hotel, thus getting the total occupancy
 	public void getTotalOcupancy() throws SQLException{
 		// TODO Auto-generated method stub
 		String sql = "SELECT rs.HotelID,CASE WHEN SUM(rs.GuestNumber) IS NULL THEN 0 ELSE SUM(rs.GuestNumber) END AS TotalOccupancy FROM (SELECT A.BookingID, A.GuestNumber, room.`HotelID`,room.`RoomNumber` FROM (SELECT * FROM Booking WHERE startDate<=? AND EndDate>=?) A RIGHT JOIN room ON A.HotelID = room.`HotelID` AND A.RoomNumber=room.`RoomNumber`) rs GROUP BY rs.HotelID;";
@@ -1699,7 +1700,8 @@ public class Application {
 		}				
 	}
 
-
+	// function to create a new booking, includes a call to check room availability and 
+	// also initializes the bill table with necessary values
 	public void createBooking() throws SQLException, ParseException{
 		// TODO Auto-generated method stub
 		prompt("enter customer email id"); 
@@ -1787,15 +1789,9 @@ public class Application {
 			}
 		}
 		
-		
-		
-		//handle presidential staff assignment
-		// handled in checkinRoom
-		
-		
 	}
 
-
+	// function to checkout room and release rooms, staff, etc involved in the booking, toggle availabilities, generateBill is called 
 	public void checkoutRoom() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("enter booking id");
@@ -1933,7 +1929,7 @@ public class Application {
 		
 	}
 
-
+	// the "main" function 
 	public static void main(String[] args) throws ParseException {
 		// TODO Auto-generated method stub
 		Scanner scan = new Scanner(System.in);
