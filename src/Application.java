@@ -27,11 +27,13 @@ public class Application {
 		this.scan = scan;
 	}
 	
-	
+	// alias function for printing to function
 	public void prompt(String string){
 		System.out.println(string);
 	}
-
+	
+	
+	//function to connect to the database
 	public void getConnection() throws SQLException {
 	        if (this.connection != null)
 	            return;
@@ -45,7 +47,7 @@ public class Application {
 	        this.connection = DriverManager.getConnection(jdbcURL,vclUserID , vclPassword);
 	    }
 	
-	
+	// this is the first function to be called when the application starts in the main function
 	public void start(int choice) throws SQLException, ParseException {
 		// TODO Auto-generated method stub
 		String userName="", userPassword="";
@@ -62,6 +64,7 @@ public class Application {
 		switch(this.dept){
 			case -1: 
 				this.prompt("Incorrect Credentials..back to main page.."); 
+				// again call the main function
 				Application.main(null); 
 				break;
 			case 1: 
@@ -75,27 +78,8 @@ public class Application {
             		
 		}		
 	}
-	
-	
-	
-	
-	
-//	public void staffHandler() throws SQLException{
-//		// TODO Auto-generated method stub
-//		int choice  = this.viewStaffOptions();
-//		switch(choice) {
-//			
-//		}
-//		
-//	}
 
-
-//	public int viewStaffOptions() {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
-
-
+	// this function is responsible to delete the booking
 	public void deleteBooking() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("please enter the booking id");
@@ -106,13 +90,7 @@ public class Application {
 		ps.executeQuery();
 	}
 
-
-//	public void updateBooking() throws SQLException{
-//		// TODO Auto-generated method stub
-//				
-//	}
-
-
+	// function to get revenue by date range
 	public void getRevenueByDateRange() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("enter hotel id");
@@ -132,7 +110,7 @@ public class Application {
 		}
 	}
 
-
+	// function to report occupancy (w.r.t rooms) by city 
 	public void reportOccupancyByCity() throws SQLException{
 		// TODO Auto-generated method stub		
 		String sql="SELECT c.City, CASE  WHEN SUM(z.Occupied) IS NULL THEN 0 ELSE SUM(z.Occupied) END AS Occupancy, SUM(z.TotalRooms) AS TotalRooms,  CASE WHEN SUM(z.Occupied/z.TotalRooms*100) IS NULL THEN 0 ELSE SUM(z.Occupied/z.TotalRooms*100) END AS Percentage_occupancy_by_City FROM (SELECT t.HotelID, o.Occupied, t.TotalRooms FROM (SELECT   COUNT(roomNumber) AS Occupied , HotelID FROM room WHERE Availability=0  GROUP BY HotelID) o RIGHT OUTER JOIN (SELECT COUNT(roomNumber) AS TotalRooms, HotelID FROM room GROUP BY HotelID) t  ON o.HotelID=t.HotelID) z JOIN (SELECT City , HotelID FROM hotel) c ON c.HotelID=z.HotelID GROUP BY c.City;";
@@ -143,7 +121,9 @@ public class Application {
 		}		
 	}
 
-
+	// function to report occupancy(w.r.t rooms) by date range 
+	// in this function we calculate the occupancy of every single date
+	// in that range and print out the date with corresponding occupancy on that day
 	public void reportOccupancyByDateRange() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("enter start date");
@@ -169,7 +149,7 @@ public class Application {
 		
 	}
 
-
+	// function to report occupancy(w.r.t. room) by room type
 	public void reportOccupancyByRoomType() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("enter hotel id:");
@@ -186,7 +166,7 @@ public class Application {
 		
 	}
 
-
+	// function to report occupancy(w.r.t. rooms) for a particular hotel in wolfinns
 	public void reportOccupancyByHotel() throws SQLException{
 		// TODO Auto-generated method stub
 		String sql = "SELECT t.HotelID, o.Occupied, t.TotalRooms, o.Occupied/t.TotalRooms*100 AS Percentage_of_room_occupied FROM (SELECT  COUNT(roomNumber)   AS Occupied, HotelID FROM room WHERE Availability=0  GROUP BY HotelID) o RIGHT OUTER JOIN (SELECT COUNT(roomNumber) AS TotalRooms, HotelID FROM room GROUP BY HotelID) t  ON o.HotelID=t.HotelID;";
@@ -197,7 +177,12 @@ public class Application {
 		}
 	}
 
-
+	// initBill is a function which is called when a booking is made, which 
+	// initializes the total amount to be number of days of stay* rate of room 
+	// in the totalamount column in bill table
+	// this function is called in create booking function
+	// the function is also responsible to add basic details related to bill
+	// like payment mode, billing address, ssn
 	public void initBill(int bookingid, int hotelid, int roomNumber, long numberOfDays) throws SQLException{
 		// TODO Auto-generated method stub
 		scan.nextLine();
@@ -211,7 +196,7 @@ public class Application {
 			prompt("enter card number");
 			cardNumber =this.scan.nextLong();
 		}
-		//scan.nextLine();
+		
 		prompt("enter bill address");
 		String billAddress = this.scan.nextLine();
 		prompt("enter ssn number");
@@ -419,7 +404,7 @@ public class Application {
 		prompt("enter start date and end date (YYYY-MM-DD)");
 		String requestedStartDate=this.scan.next(), requestedEndDate=this.scan.next();
 		
-		String sql = "select * from Room where RoomNumber not in(Select Distinct(RoomNumber) from Booking Where CheckOutTime is Null AND ((StartDate<=? and EndDate>=?) or(StartDate>=? and StartDate<=?))) and HotelID=?";
+		String sql = "select * from ROOM where RoomNumber not in(Select Distinct(RoomNumber) from Booking Where CheckOutTime is Null AND ((StartDate<=? and EndDate>=?) or(StartDate>=? and StartDate<=?))) and HotelID=?";
 		PreparedStatement ps=connection.prepareStatement(sql);
 		ps.setString(1, requestedStartDate);
 		ps.setString(2, requestedStartDate);
@@ -445,7 +430,7 @@ public class Application {
 		prompt("enter room type:");
 		this.scan.nextLine();
 		String roomType = this.scan.nextLine();		
-		String sql = "select * from Room where RoomNumber not in(Select Distinct(RoomNumber) from Booking Where CheckOutTime is Null AND ((StartDate<=? and EndDate>=?) or(StartDate>=? and StartDate<=?))) and HotelID=? and Category=?";
+		String sql = "select * from ROOM where RoomNumber not in(Select Distinct(RoomNumber) from Booking Where CheckOutTime is Null AND ((StartDate<=? and EndDate>=?) or(StartDate>=? and StartDate<=?))) and HotelID=? and Category=?";
 		PreparedStatement ps=connection.prepareStatement(sql);
 		ps.setString(1, requestedStartDate);
 		ps.setString(2, requestedStartDate);
@@ -1083,6 +1068,8 @@ public class Application {
 			prompt("enter manager id:");		
 			int managerid = scan.nextInt();
 			updateHotelHelper(hotelid, managerid, namefetched, addressfetched, cityfetched, statefetched, emailfetched, phonefetched);
+			prompt("now update the dept of this staff to management");
+			updateStaff();
 			break;
 		case 2: 
 			prompt("enter name");
