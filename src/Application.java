@@ -127,8 +127,9 @@ public class Application {
 	public void reportOccupancyByDateRange() throws SQLException{
 		// TODO Auto-generated method stub
 		prompt("enter start date");
+		String startDate=this.scan.next();
 		prompt("enter end date");
-		String startDate=this.scan.next(), endDate=this.scan.next();
+		String endDate=this.scan.next();
 		DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		LocalDate dstartDate = LocalDate.parse(startDate,dtFormatter);
 		LocalDate dendDate = LocalDate.parse(endDate,dtFormatter); 
@@ -1258,7 +1259,7 @@ public class Application {
 
 	
 
-	// function to check the if valid admin
+	// function to check if valid admin
 	public int getDepartment(String userName, String userPassword, int choice) throws SQLException {
 		// TODO Auto-generated method stub
 		if(choice==1) {
@@ -1272,7 +1273,7 @@ public class Application {
 		return -1;
 	}
 	
-	// function to check if user
+	// function to check if user is valid
 	public Boolean isUser(String sql, String userName, String userPassword) throws SQLException {
         this.getConnection();
         PreparedStatement statement = connection.prepareStatement(sql);
@@ -1340,8 +1341,8 @@ public class Application {
 		prompt("30.Create service request 31. update service request 32. delete service request");
 		prompt("33. Generate report(occupancy by hotel) 34. Generate report(occupancy by room type)");
 		prompt("35. Generate report(occupancy by date range) 36. Generate report(occupancy by city)");
-		prompt("37. total occupancy 38. percentage of room occupied 39. staff grouped by roles ");
-		prompt("40. info of staff serving a customer on a stay");
+		prompt("37. total occupancy 38. percentage of room occupied ");
+		
 		int option = scan.nextInt();
 		return option;
 	}
@@ -1467,7 +1468,7 @@ public class Application {
 					break;
 					
 				default:
-					this.prompt("f");
+					this.prompt("wrong choice");
 					
 					
 			}
