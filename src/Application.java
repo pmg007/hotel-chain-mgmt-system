@@ -1172,7 +1172,7 @@ public class Application {
 	}
 
 	// function to add hotel 
-	// special care has been taken to add manager by taking 
+	// special care has been taken to add manager by calling addStaff
 	public void addHotel() throws SQLException, ParseException {
 		// TODO Auto-generated method stub
 		String name, address, city, state, email, phone;
