@@ -1544,10 +1544,12 @@ public class Application {
 		cateringStaffid = this.scan.nextInt();
 		
 		
-		String sql2 = "update PRESIDENTIAL_ROOM set  RoomServiceStaffID=? and CateringStaffID=?  ";
+		String sql2 = "update PRESIDENTIAL_ROOM set  RoomServiceStaffID=? and CateringStaffID=? where HotelID=? and RoomNumber = ? ";
 		PreparedStatement ps2 = connection.prepareStatement(sql2);
 		ps2.setInt(1, serviceStaffid);
 		ps2.setInt(2, cateringStaffid);
+		ps2.setInt(3, hotelid);
+		ps2.setInt(4, roomNumber);
 		ps2.executeUpdate();
 		
 		
